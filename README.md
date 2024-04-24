@@ -1,4 +1,6 @@
-# MAPS Status GUI
+# MAPS Qt6 GUIs
+
+These are the status and control GUIs for part of the MAPS project on MMT.
 
 ## Installation
 
