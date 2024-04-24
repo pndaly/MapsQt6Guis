@@ -2,6 +2,10 @@
 
 These are the status and control GUIs for part of the MAPS project on MMT.
 
+## Current Status
+
+Status GUIs should work. Control GUIs are to be completed.
+
 ## Installation
 
 ```bash
@@ -14,7 +18,7 @@ These are the status and control GUIs for part of the MAPS project on MMT.
   python3 -m pip install pyqt6
 ```
 
-NB: A virtual environment is *not* required so you can omit the first 2 above commands.
+NB: A virtual environment is *not* required so you can omit the first 2 above commands if desired.
 
 
 ## Quick Start
