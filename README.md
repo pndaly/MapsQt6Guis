@@ -42,7 +42,7 @@ An example of running mutliple GUIs, is:
 
 ### maps_status_indi.py
 
-This co9ntains large data structures associated with INDI streams. If you edit this file, you should run the
+This contains large data structures associated with INDI streams. If you edit this file, you should run the
 sanity check(s) to ensure data integrity, consistency and validity by executing:
 
 ```bash
