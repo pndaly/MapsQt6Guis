@@ -26,10 +26,10 @@ import sys
 __doc__ = """python3 maps_status_gui.py --help"""
 
 AUTHOR = 'Phil Daly'
-DATE = 20240319
+DATE = 20240424
 EMAIL = 'pndaly@arizona.edu'
 NAME = 'MAPS Status GUI'
-VERSION = '0.0.0'
+VERSION = '1.0.0'
 
 ITEMS_PER_TAB = 25
 MODULES = [_ for _ in list(TAB_DATA.keys())]
@@ -181,7 +181,8 @@ class MapsStatusGui(QMainWindow):
     # -
     def __create_tooltip__(self):
         QToolTip.setFont(QFont('Ariel', 10))
-        self.setToolTip(f"{NAME}: {AUTHOR} ({EMAIL})\tVersion: {VERSION}\tRevision Date: {DATE}")
+        # self.setToolTip(f"{NAME}: {AUTHOR} ({EMAIL})\tVersion: {VERSION}\tRevision Date: {DATE}")
+        self.setToolTip(f"")
         self.setStyleSheet("""QToolTip { background-color: #E2FDDB; color: blue; border: solid 2px }""")
 
     # +
@@ -290,8 +291,6 @@ class MapsStatusGui(QMainWindow):
     # (hidden) method: __update_label__()
     # -
     def __update_label__(self, flag: bool = False, msg: str = ''):
-        # self.__dump__("widgets")
-        # self.__dump__("values")
         self.__connected = flag
         self.__connected_label.clear()
         self.__connected_label.setText(f"{msg:75s}")
@@ -305,8 +304,6 @@ class MapsStatusGui(QMainWindow):
             self.__connected_label.setStyleSheet("background-color: red;")
             self.__simulate = True
             self.__action_simulate.setChecked(True)
-        # self.__dump__("widgets")
-        # self.__dump__("values")
 
     # +
     # method: create_user_interface()
@@ -375,16 +372,6 @@ class MapsStatusGui(QMainWindow):
         else:
             self.__update_label__(False, "Disconnected from INDI")
             self.__timer.stop()
-            # for _k, _v in self.__indi_values.items():
-            #     _type = str(type(self.__indi_values))
-            #     if 'float' in _type:
-            #         self.__indi_values = {**self.__indi_values, **{_k: math.nan}}
-            #     elif 'int' in _type:
-            #         self.__indi_values = {**self.__indi_values, **{_k: -1}}
-            #     else:
-            #         self.__indi_values = {**self.__indi_values, **{_k: "unknown"}}
-            # for _k, _v in self.__indi_values.items():
-            #     self.__indi_widgets.get(_k).setText(f"{_v}")
 
     # +
     # method: set_simulate()
@@ -451,7 +438,6 @@ class MapsStatusGui(QMainWindow):
             #             self.__indi_values = {**self.__indi_values, **{_k: f"{_v}"}}
             #             self.__indi_widgets.get(_k).setText(f"{_v}")
         self.__step += 1
-        # self.__dump__('values')
 
 
 # +
@@ -477,7 +463,7 @@ if __name__ == '__main__':
     _a = _p.parse_args()
 
     # noinspection PyBroadException
-    # try:
-    execute(_host=_a.host.strip(), _port=int(_a.port), _module=_a.module.strip(), _log=UtilLogger(name='maps_status_gui', level='DEBUG').logger)
-    # except Exception as _:
-    #     print(f"{_}\nUse: {__doc__}")
+    try:
+        execute(_host=_a.host.strip(), _port=int(_a.port), _module=_a.module.strip(), _log=UtilLogger(name='maps_status_gui', level='DEBUG').logger)
+    except Exception as _:
+        print(f"{_}\nUse: {__doc__}")

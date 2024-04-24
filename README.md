@@ -76,7 +76,8 @@ The key in each of these 3 data structures must be the same but the value can be
 
 If you do change the `maps_status_indi.py` code, please check for data validity as detailed above.
 
-+-------------------------------------------------------------------------------+
+-------------------------------------------------------------------------------
 
-Last Modified: 20240421
+Last Modified: 20240424
+
 Last Author:   Phil Daly (pndaly@arizona.edu)

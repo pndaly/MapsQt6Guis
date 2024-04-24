@@ -33,8 +33,6 @@ random.seed(os.getpid())
 # -
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 7624
-DEFAULT_DEVICE = 'GALIL-DMC-2280'
-DEFAULT_NAME = 'SUPPORT'
 DEFAULT_TIMEOUT = 5
 DEGREE = u'\u00b0'
 FALSE_VALUES = [0, False, '0', 'false', 'f', 'FALSE', 'F']
@@ -292,8 +290,6 @@ class UtilLogger(object):
 
         # define some variables and initialize them
         self.__msg = None
-        # self.__logdir = os.getcwd()
-        # self.__logfile = f'{self.__logdir}/{self.__name}.log'
         self.__logfile = f'/tmp/{self.__name}.log'
 
         # logger dictionary
