@@ -132,7 +132,7 @@ def get_unix(ndays: float = 0.0) -> int:
         return -1
 
 
-# noinspection PyBroadException
+# noinspection PyBroadException,PyUnresolvedReferences
 def get_lst(lat: float = MMT_LATITUDE_DEGREES, lon: float = MMT_LONGITUDE_DEGREES, ele: float = MMT_ELEVATION_METRES) -> str:
     """returns lst or an empty string"""
     try:
@@ -144,7 +144,7 @@ def get_lst(lat: float = MMT_LATITUDE_DEGREES, lon: float = MMT_LONGITUDE_DEGREE
         return ''
 
 
-# noinspection PyBroadException
+# noinspection PyBroadException,PyUnresolvedReferences
 def get_moon(lat: float = MMT_LATITUDE_DEGREES, lon: float = MMT_LONGITUDE_DEGREES, ele: float = MMT_ELEVATION_METRES) -> tuple:
     """returns moon alt, az or (NaN, NaN)"""
     try:
@@ -157,7 +157,7 @@ def get_moon(lat: float = MMT_LATITUDE_DEGREES, lon: float = MMT_LONGITUDE_DEGRE
         return math.nan, math.nan
 
 
-# noinspection PyBroadException
+# noinspection PyBroadException,PyUnresolvedReferences
 def get_sun(lat: float = MMT_LATITUDE_DEGREES, lon: float = MMT_LONGITUDE_DEGREES, ele: float = MMT_ELEVATION_METRES) -> tuple:
     """returns sun alt, az or (NaN, NaN)"""
     try:

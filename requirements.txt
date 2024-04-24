@@ -1,0 +1,8 @@
+# astropy~=5.3.3
+astropy
+# colorlog~=6.8.2
+colorlog
+# numpy~=2.0.0rc1
+numpy
+# pyqt6~=6.6.1
+pyqt6

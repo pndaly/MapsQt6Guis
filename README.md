@@ -12,10 +12,7 @@ Status GUIs should work. Control GUIs are to be completed.
   python3 -m venv .venv
   source .venv/bin/activate
   python3 -m pip install --upgrade pip
-  python3 -m pip install numpy
-  python3 -m pip install astropy
-  python3 -m pip install colorlog
-  python3 -m pip install pyqt6
+  python3 -m pip install -r requirements.txt
 ```
 
 NB: A virtual environment is *not* required so you can omit the first 2 above commands if desired.

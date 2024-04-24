@@ -10,6 +10,7 @@ from PyQt6.QtGui import *
 from pnd import *
 from maps_status_indi import *
 
+# noinspection PyBroadException
 try:
     from pyindi2 import *
 except:
@@ -17,6 +18,7 @@ except:
 
 import argparse
 import platform
+import queue
 import sys
 
 
@@ -93,6 +95,7 @@ class MapsStatusGui(QMainWindow):
 
         # if we are not in simulation mode, connect to the indiserver
         if not self.__simulate:
+            # noinspection PyUnresolvedReferences
             self.__pi = PyINDI2(verbose=False)
 
         self.__dump__('pars')
@@ -181,8 +184,7 @@ class MapsStatusGui(QMainWindow):
     # -
     def __create_tooltip__(self):
         QToolTip.setFont(QFont('Ariel', 10))
-        # self.setToolTip(f"{NAME}: {AUTHOR} ({EMAIL})\tVersion: {VERSION}\tRevision Date: {DATE}")
-        self.setToolTip(f"")
+        self.setToolTip(f"{NAME}: {AUTHOR} ({EMAIL})\tVersion: {VERSION}\tRevision Date: {DATE}")
         self.setStyleSheet("""QToolTip { background-color: #E2FDDB; color: blue; border: solid 2px }""")
 
     # +
@@ -335,6 +337,7 @@ class MapsStatusGui(QMainWindow):
         # connect to indi
         try:
             if self.__pi is None:
+                # noinspection PyUnresolvedReferences
                 self.__pi = PyINDI2(verbose=False)
         except Exception as _e0:
             self.__update_label__(False, f"failed to connect to indi, error='{_e0}'")
@@ -403,6 +406,7 @@ class MapsStatusGui(QMainWindow):
     # +
     # (over-ride) method: closeEvent()
     # -
+    # noinspection PyPep8Naming
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "Quit Confirmation", "Are you sure you want to quit?", 
                                      QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
