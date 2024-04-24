@@ -23,13 +23,13 @@ NB: A virtual environment is *not* required so you can omit the first 2 above co
 
 ## Quick Start
 
-To run the GUI:
+To run the status GUI:
 
 ```bash
   python3 maps_status_gui.py --help
 ```
 
-An example of running mutliple GUIs, is:
+An example of running multiple status GUIs, is:
 
 ```bash
   python3 maps_status_gui.py --module=Phil &
