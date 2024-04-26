@@ -27,7 +27,7 @@ import sys
 # -
 __doc__ = """python3 maps_status_gui.py --help"""
 AUTHOR = 'Phil Daly'
-DATE = 20240424
+DATE = 20240426
 EMAIL = 'pndaly@arizona.edu'
 MODULES = [_ for _ in list(TAB_DATA.keys())]
 NAME = 'MAPS Status GUI'
@@ -282,14 +282,14 @@ class MapsStatusGui(QMainWindow):
         if self.__module in TAB_DATA:
 
             key_vals = [(_k, _v) for _k, _v in TAB_DATA[self.__module].items()]
-            key_pages, self.__indi_pages, self.__items = self.split_keyvals(_list=key_vals, _pages=self.__indi_pages, _chunk=self.__items)
+            key_pages, self.__indi_pages = self.split_keyvals(_list=key_vals, _pages=self.__indi_pages, _chunk=self.__items)
 
-            for _p in range(self.__indi_pages):
-                tab_name = f"{TAB_NAMES.get(self.__module)} {_p}"
+            for _page in range(self.__indi_pages):
+                tab_name = f"{TAB_NAMES.get(self.__module)} {_page}"
 
                 # create a placeholder widget and insert into horizontal layout
                 w = QWidget()
-                w.setToolTip(f"{TAB_NAMES.get(self.__module)} Page {_p}")
+                w.setToolTip(f"{TAB_NAMES.get(self.__module)} Page {_page}")
                 h = QHBoxLayout(w)
 
                 # create left and right group(s)
@@ -308,7 +308,7 @@ class MapsStatusGui(QMainWindow):
 
                 # populate gui
                 _ic = 0
-                for _k, _v in key_pages[_p]:
+                for _k, _v in key_pages[_page]:
 
                     # if the key is empty, we use it for padding
                     if _k == '':
@@ -342,7 +342,6 @@ class MapsStatusGui(QMainWindow):
                     # set layout into group(s) and add tab
                     right.setLayout(rg)
                     left.setLayout(lg)
-
                     self.__tabs.addTab(w, tab_name)
                     _ic += 1
 
@@ -455,14 +454,15 @@ class MapsStatusGui(QMainWindow):
         _mbox.setIcon(QMessageBox.Icon.Information)
         _mbox.setWindowTitle(f"{NAME}")
         _mbox.setWindowIcon(QIcon('information-frame.png'))
-        _mbox.setText(f"\n{NAME}\nAuthor: {AUTHOR}\nEmail: {EMAIL}\nVersion: {VERSION}\nRevision Date: {DATE}\n\nPython: {platform.python_version()}\nQt6: {qVersion()}")
+        _mbox.setText(f"\n{NAME}\nAuthor: {AUTHOR}\nEmail: {EMAIL}\nVersion: {VERSION}\n"
+                      f"Revision Date: {DATE}\n\nPython: {platform.python_version()}\nQt6: {qVersion()}")
         _mbox.setStyleSheet("""background-color: #E2FDDB; color: blue; border: solid 2px""")
         _mbox.exec()
 
     # +
     # (over-ride) method: closeEvent()
     # -
-    # noinspection PyPep8Naming
+    # noinspection PyPep8Naming,PyTypeChecker,PyMethodOverriding
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "Quit Confirmation", "Are you sure you want to quit?", 
                                      QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
@@ -516,22 +516,25 @@ class MapsStatusGui(QMainWindow):
                 #             self.__indi_widgets.get(_k).setText(f"{_v}")
 
     # +
-    # function: split_list()
+    # method: split_keyvals()
     # -
-    def split_keyvals(self, _list: list = None, _pages: int = 0, _chunk: int = DEFAULT_ITEMS) -> tuple:
+    # noinspection PyBroadException
+    @staticmethod
+    def split_keyvals(_list: list = None, _pages: int = 0, _chunk: int = DEFAULT_ITEMS) -> tuple:
         try:
             # adjust page(s)
             if _pages * _chunk < len(_list):
                 _pages += 1
             # pad to boundary
             _list += [('', {})] * ((_pages * _chunk) - len(_list))
-            # creae new list
+            # create new list
             _nlist = []
             for _i in range(0, len(_list), _chunk):
                 _nlist.append(_list[_i:_i+_chunk])
-            return _nlist, _pages, _chunk
+            return _nlist, _pages
         except:
-            return _list, -1, -2
+            return _list, _pages
+
 
 # +
 # function: execute()
@@ -565,4 +568,4 @@ if __name__ == '__main__':
                 _items=int(_a.items), _delay=int(_a.delay),
                 _log=UtilLogger(name='maps_status_gui', level='DEBUG').logger)
     except Exception as _:
-        print(f"{_}\nUse: {__doc__}")
+        print(f"{_}\n{__doc__}")
