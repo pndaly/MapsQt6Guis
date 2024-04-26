@@ -1,4 +1,2 @@
- - Add extra tabs for > 25 items per page
- - Pad < 25 items per page in final tab
  - turn label blue when data point is too low (cold)
  - turn label red when data point is too high (hot)

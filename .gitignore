@@ -46,50 +46,7 @@ docs/
 # +
 # build(s)
 # -
-bok_nominal_plane.txt
-test_galil
-docker/*
-bin/bokGalilIndiDriver
-bin/bok_read_filters
-bin/bok_read_guider_filters
-bin/bok_read_instrument_filters
-bin/bok_read_nominal_plane
-bin/Galil_DMC_22x0_CLI
-bin/Galil_DMC_22x0_NgClient
-bin/Galil_DMC_22x0_NgClient.py
-bin/Galil_DMC_22x0_NgClient_Requests.py
-bin/Galil_DMC_22x0_Read_Telemetry.py
-bin/Galil_DMC_22x0_NgServer
-bin/Galil_DMC_22x0_TCP_Read
-bin/Galil_DMC_22x0_TCP_Read.py
-bin/Galil_DMC_22x0_TCP_Write
-bin/Galil_DMC_22x0_UDP_Read
-bin/Galil_DMC_22x0_UDP_Read.py
-bin/Galil_DMC_22x0_UDP_Write
-bin/Galil_DMC_22x0_Write_Memory
-src/bokGalilIndiDriver
-src/bok_read_filters
-src/bok_read_guider_filters
-src/bok_read_instrument_filters
-src/bok_read_nominal_plane
-src/Galil_DMC_22x0_CLI
-src/Galil_DMC_22x0_NgClient
-src/Galil_DMC_22x0_NgServer
-src/Galil_DMC_22x0_TCP_Read
-src/Galil_DMC_22x0_TCP_Write
-src/Galil_DMC_22x0_UDP_Read
-src/Galil_DMC_22x0_UDP_Write
-src/libbokGalil.a
-src/libbokGalil.so
-src/__hosts__.h
-src/__hosts__.home.h
-src/__hosts__.py
-lib/libbokGalil.a
-lib/libbokGalil.so
-tcl/tclIndex
-tcl/bokParams.txt
-tcl/bokParams.home.txt
-tex/bokGalil.pdf
+pyindi2.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

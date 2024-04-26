@@ -83,18 +83,46 @@ def flatten_dictionary(_dict: Any = None, _sep: str = ".", _pre: str = "") -> di
 # noinspection PyBroadException
 def update_dictionary(_dict: dict = None) -> dict:
     for _k in _dict.keys():
+        # callable so value can be generated on-the-fly
         if callable(_dict[_k]['simval']):
+            # random.uniform or random.randint which requires 2 argument(s)
             if isinstance(_dict[_k]['datarange'], tuple):
                 _min, _max = _dict[_k]['datarange']
-                if _dict[_k]['datarange'] == 'float':
-                    _dict[_k]['actval'] = float(_dict[_k]['simval'](_min, _max))
-                elif _dict[_k]['datarange'] == 'int':
-                    _dict[_k]['actval'] = int(_dict[_k]['simval'](_min, _max))
+                _value = _dict[_k]['simval'](_min, _max)
+                _type = _dict[_k]['datatype'].strip().lower()
+                if _type == 'float':
+                    _dict[_k]['actval'] = float(_value)
+                elif _type == 'int':
+                    _dict[_k]['actval'] = int(_value)
+                elif _type == 'bool':
+                    _dict[_k]['actval'] = bool(_value)
+                elif _type == 'binary':
+                    _dict[_k]['actval'] = f"{_value.encode('utf=8')}"
                 else: 
-                    _dict[_k]['actval'] = f"{_dict[_k]['simval'](_min, _max)}"
+                    _dict[_k]['actval'] = f"{_value}"
+            # random.choice which requires 1 argument(s)
             elif isinstance(_dict[_k]['datarange'], list):
                 _choice = _dict[_k]['datarange']
-                _dict[_k]['actval'] = _dict[_k]['simval'](_choice)
+                _value = _dict[_k]['simval'](_choice)
+                _type = _dict[_k]['datatype'].strip().lower()
+                if _type == 'float':
+                    _dict[_k]['actval'] = float(_value)
+                elif _type == 'int':
+                    _dict[_k]['actval'] = int(_value)
+                elif _type == 'bool':
+                    _dict[_k]['actval'] = bool(_value)
+                elif _type == 'binary':
+                    _dict[_k]['actval'] = f"{_value.encode('utf=8')}"
+                else: 
+                    _dict[_k]['actval'] = f"{_value}"
+            # get_hash which requires 0 argument(s)
+            elif isinstance(_dict[_k]['datarange'], str):
+                _choice = _dict[_k]['datarange']
+                if _choice in FILETYPES:
+                    _dict[_k]['actval'] = f"{_dict[_k]['simval']()[:10]}{_choice}"
+                else:
+                    _dict[_k]['actval'] = f"{_dict[_k]['simval']}"
+        # not callable so just copy the value as a string
         elif isinstance(_dict[_k]['simval'], str):
             _dict[_k]['actval'] = _dict[_k]['simval']
     return _dict
@@ -314,12 +342,12 @@ AO_DM_ACTUATOR = {
     "widget": None, 
  },
  "ao_dm_actuator.ACFOpCodes.IntegralGain": {
-    "actval": math.nan,
-    "datarange": (0.0, 1.0),
-    "datatype": "float", 
+    "actval": -1,
+    "datarange": [0, 1, 2, 3, 4, 5],
+    "datatype": "int", 
     "label": None, 
     "permission": "ro",
-    "simval": random.uniform,
+    "simval": random.choice,
     "tooltip": "ACF File OpCode Values: Integral Gain",
     "unit": "Ki",
     "widget": None, 
@@ -666,12 +694,12 @@ AO_DM_ACTUATOR = {
     "widget": None, 
  },
  "ao_dm_actuator.ActOpCodes.IntegralGain": {
-    "actval": math.nan,
-    "datarange": (0.0, 1.0),
-    "datatype": "float", 
+    "actval": -1,
+    "datarange": [0, 1, 2, 3, 4, 5],
+    "datatype": "int", 
     "label": None, 
     "permission": "ro",
-    "simval": random.uniform,
+    "simval": random.choice,
     "tooltip": "Actuator OpCode Values: Integral Gain",
     "unit": "Ki",
     "widget": None, 
@@ -1591,7 +1619,7 @@ AO_DM_ACTUATOR = {
  },
  "ao_dm_actuator.RunATSFile.run": {
     "actval": "", 
-    "datarange": "0.ats",
+    "datarange": ".ats",
     "datatype": "str", 
     "label": None, 
     "permission": "wo",
@@ -1624,7 +1652,7 @@ AO_DM_ACTUATOR = {
  },
  "ao_dm_actuator.RunMShape.mode": {
     "actval": math.nan,
-    "datarange": (0.0, 1.0),
+    "datarange": [0.0, 1.0],
     "datatype": "float", 
     "label": None, 
     "permission": "rw",
@@ -1848,11 +1876,11 @@ AO_DM_ADMIN = {
  },
  "ao_dm_admin.MainPower.comm_ok": {
     "actval": math.nan,
-    "datarange": [0.0, 1.0],
+    "datarange": (0.0, 1.0),
     "datatype": "float", 
     "label": None, 
     "permission": "ro",
-    "simval": random.choice,
+    "simval": random.uniform,
     "tooltip": "Main CASC Power Supply Status: Communications 1.0=Ok, 0.0=Bad",
     "unit": "",
     "widget": None, 
@@ -1881,11 +1909,11 @@ AO_DM_ADMIN = {
  },
  "ao_dm_admin.MainPower.over_current": {
     "actval": math.nan,
-    "datarange": [0.0, 1.0],
+    "datarange": (0.0, 1.0),
     "datatype": "float", 
     "label": None, 
     "permission": "ro",
-    "simval": random.choice,
+    "simval": random.uniform,
     "tooltip": "Main CASC Power Supply Status: Over Current 1.0=True, 0.0=False",
     "unit": "",
     "widget": None, 
@@ -2490,11 +2518,11 @@ AO_DM_HOUSEKEEPER = {
  },
  "ao_dm_housekeeper.SetOnOff.OnOff": {
     "actval": math.nan,
-    "datarange": [0, 1],
+    "datarange": (0.0, 1.0),
     "datatype": "float", 
     "label": None, 
     "permission": "rw",
-    "simval": random.choice,
+    "simval": random.uniform,
     "tooltip": "Control Actuator Power: 0=off, 1=on",
     "unit": "",
     "widget": None, 
@@ -2982,7 +3010,7 @@ AO_LOGGER = {
  },
  "ao_logger.FeedForward.nlogged": {
     "actval": -1,
-    "datarange": (0, 512),
+    "datarange": (0, 100),
     "datatype": "int", 
     "label": None, 
     "permission": "rw",
@@ -2993,7 +3021,7 @@ AO_LOGGER = {
  },
  "ao_logger.FeedForward.savedt": {
     "actval": math.nan,
-    "datarange": "0.0, 512.0",
+    "datarange": (0.0, 512.0),
     "datatype": "float", 
     "label": None, 
     "permission": "rw",
@@ -3004,7 +3032,7 @@ AO_LOGGER = {
  },
  "ao_logger.FeedForward.tleft": {
     "actval": math.nan,
-    "datarange": "0.0, 512.0",
+    "datarange": (0.0, 512.0),
     "datatype": "float", 
     "label": None, 
     "permission": "rw",
@@ -3048,7 +3076,7 @@ AO_LOGGER = {
  },
  "ao_logger.MeasuredCoil.savedt": {
     "actval": math.nan,
-    "datarange": "0.0, 30.0",
+    "datarange": (0.0, 30.0),
     "datatype": "float", 
     "label": None, 
     "permission": "rw",
@@ -4624,7 +4652,7 @@ AMALI_STATUS_GUI = {
  "Time.Location.Latitude": TIME["Time.Location.Latitude"],
  "Time.Location.Longitude": TIME["Time.Location.Longitude"],
  "Time.Location.Elevation": TIME["Time.Location.Elevation"],
- "Time.Location.MagDecl": TIME["Time.Location.MagDecl"],
+ "Time.Location.MagDecl": TIME["Time.Location.MagDecl"]
 }
 
 NEW_STATUS_GUI = {}
@@ -4634,6 +4662,7 @@ NEW_STATUS_GUI = {}
 # TAB(s)
 # -
 TAB_COLORS = {
+    "all": "#FDFDDB",
     "ao_dm_actuator": "#E9DBFD",
     "ao_dm_admin": "#FDF0DB",
     "ao_dm_housekeeper": "#FDFDDB",
@@ -4649,6 +4678,7 @@ TAB_COLORS = {
 
 
 TAB_NAMES = {
+    "all": "All", 
     "ao_dm_actuator": "AO DM Actuator", 
     "ao_dm_admin": "AO DM Admin", 
     "ao_dm_housekeeper": "AO DM Housekeeper", 
@@ -4659,11 +4689,12 @@ TAB_NAMES = {
     "Time": "Time",
     "Phil": "Phil's GUI",
     "Amali": "Amali's GUI",
-    "New": "Amali's GUI",
+    "New": "New GUI",
 }
 
 
 TAB_DATA = {
+    "all": ALL_STREAMS, 
     "ao_dm_actuator": AO_DM_ACTUATOR, 
     "ao_dm_admin": AO_DM_ADMIN, 
     "ao_dm_housekeeper": AO_DM_HOUSEKEEPER, 
