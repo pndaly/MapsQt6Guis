@@ -4,6 +4,7 @@
 # +
 # import(s)
 # -
+from colors import *
 from datetime import datetime
 from datetime import timedelta
 from typing import Any
@@ -4665,15 +4666,15 @@ TAB_COLORS = {
     "all": "#FDFDDB",
     "ao_dm_actuator": "#E9DBFD",
     "ao_dm_admin": "#FDF0DB",
-    "ao_dm_housekeeper": "#FDFDDB",
-    "ao_dm_operate": "#F2FDDB",
-    "ao_logger": "#E2FDDB",
+    "ao_dm_housekeeper": "#FDFDEC",
+    "ao_dm_operate": "#F2FDFA",
+    "ao_logger": "#E2FBFD",
     "chai2": "#DBFDF5",
     "CyberPower": "#DBEFFD",
     "Time": "#DBEFED",
-    "Phil": "#F2FDDB",
-    "Amali": "#E2FDDB",
-    "New": "#E9DBFD",
+    "Phil": "#F2F888",
+    "Amali": "#E2F444",
+    "New": "#E9D111",
 }
 
 

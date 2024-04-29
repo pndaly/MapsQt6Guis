@@ -1,5 +1,7 @@
 # astropy~=5.3.3
 astropy
+# colored~=2.2.4
+colored
 # colorlog~=6.8.2
 colorlog
 # numpy~=2.0.0rc1
