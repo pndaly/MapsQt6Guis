@@ -1,2 +1,2 @@
- - turn label blue when data point is too low (cold)
- - turn label red when data point is too high (hot)
+ - start control gui
+ - think about TCS via Redis

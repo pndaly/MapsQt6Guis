@@ -299,16 +299,16 @@ class MapsStatusGui(QMainWindow):
 
                 # create left and right group(s)
                 right = QGroupBox('Value(s)')
-                if self.__module == 'all':
-                    right.setStyleSheet(f"background-color: {CNAMES[_color]}")
-                else:
-                    right.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
+                # if self.__module == 'all':
+                #     right.setStyleSheet(f"background-color: {CNAMES[_color]}")
+                # else:
+                right.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
                 right.setFont(QFont("Bitstream Charter", 12, italic=True))
                 left = QGroupBox('Stream(s)')
-                if self.__module == 'all':
-                    left.setStyleSheet(f"background-color: {CNAMES[_color]}")
-                else:
-                    left.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
+                # if self.__module == 'all':
+                #     left.setStyleSheet(f"background-color: {CNAMES[_color]}")
+                # else:
+                left.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
                 left.setFont(QFont("Bitstream Charter", 12, italic=True))
 
                 # add left and right group(s) into horizontal layout and create grid(s)
@@ -497,10 +497,36 @@ class MapsStatusGui(QMainWindow):
                 if hasattr(_widget, 'setText'):
                     if 'float' in _type and float(_value) != float(_actval):
                         _widget.setText(f"{float(_actval)}")
-                    if 'int' in _type and int(_value) != int(_actval):
+                    elif 'int' in _type and int(_value) != int(_actval):
                         _widget.setText(f"{int(_actval)}")
+                    elif 'bool' in _type:
+                        _widget.setText(f"{bool(_actval)}")
+                    elif 'binary' in _type:
+                        _widget.setText(f"{_actval('utf-8')}")
                     else:
                         _widget.setText(f"{_actval}")
+                    _min, _max = _v['datarange'] if len(_v['datarange']) == 2 else (-math.nan, math.nan)
+
+                    # change label if running hot, cold, or normal
+                    if isinstance(_v['datarange'], tuple) and len(_v['datarange'])==2:
+                        _min, _max = _v['datarange']
+                        if float(_actval) < _min: 
+                            if self.__log:
+                                self.__log.warning(f"{_k} value too cold! {_actval} < {_min}")
+                            _widget.setStyleSheet(f"background-color: #0000FF; color: #FFFFFF;")
+                        elif float(_actval) > _max: 
+                            if self.__log:
+                                self.__log.warning(f"{_k} value too hot! {_actval} > {_max}")
+                            _widget.setStyleSheet(f"background-color: #FF0000; color: #FFFFFF;")
+                        else:
+                            _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
+                    elif isinstance(_v['datarange'], list):
+                        if _actval not in _v['datarange']:
+                            if self.__log:
+                                self.__log.warning(f"{_k} value not an option! {_actval} not in {_v['datarange']}")
+                            _widget.setStyleSheet(f"background-color: #FFFF00; color: #00FF00;")
+                        else:
+                            _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
 
         else:
             try:
@@ -535,6 +561,27 @@ class MapsStatusGui(QMainWindow):
                             else:
                                 TAB_DATA[_k]['actval'] = f"{_v}"
                                 _widget.setText(f"{_v}")
+
+                    # change label if running hot, cold, or normal
+                    if isinstance(_v['datarange'], tuple) and len(_v['datarange'])==2:
+                        _min, _max = _v['datarange']
+                        if float(_actval) < _min: 
+                            if self.__log:
+                                self.__log.warning(f"{_k} value too cold! {_actval} < {_min}")
+                            _widget.setStyleSheet(f"background-color: #0000FF; color: #FFFFFF;")
+                        elif float(_actval) > _max: 
+                            if self.__log:
+                                self.__log.warning(f"{_k} value too hot! {_actval} > {_max}")
+                            _widget.setStyleSheet(f"background-color: #FF0000; color: #FFFFFF;")
+                        else:
+                            _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
+                    elif isinstance(_v['datarange'], list):
+                        if _actval not in _v['datarange']:
+                            if self.__log:
+                                self.__log.warning(f"{_k} value not an option! {_actval} not in {_v['datarange']}")
+                            _widget.setStyleSheet(f"background-color: #FFFF00; color: #00FF00;")
+                        else:
+                            _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
 
     # +
     # function: split_list()

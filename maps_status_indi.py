@@ -4663,7 +4663,7 @@ NEW_STATUS_GUI = {}
 # TAB(s)
 # -
 TAB_COLORS = {
-    "all": "#FDFDDB",
+    "all": CNAMES.get('antiquewhite'),
     "ao_dm_actuator": "#E9DBFD",
     "ao_dm_admin": "#FDF0DB",
     "ao_dm_housekeeper": "#FDFDEC",
