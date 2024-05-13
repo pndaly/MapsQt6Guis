@@ -197,9 +197,9 @@ def color_palette(_bg: str = DEFAULT_BG, _fg: str = DEFAULT_FG) -> None:
             print(f"{bg(_bg)}{fg(_fg)}{_k}/{_v}: {fg(_v)}Brown jars prevented the mixture from freezing too quickly")
         except:
             pass
-    for _i in range(len(COLORS)):
+    for _i in COLORS:
         try:
-            print(f"{bg(_bg)}{fg(_fg)}{_k}/{_v}: {fg(COLORS[_i])}The quick brown fox jumps over the lazy dog")
+            print(f"{bg('#000000')}{_i}: {fg(_i)}The quick brown fox jumps over the lazy dog")
         except:
             pass
 

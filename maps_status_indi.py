@@ -84,6 +84,7 @@ def flatten_dictionary(_dict: Any = None, _sep: str = ".", _pre: str = "") -> di
 # noinspection PyBroadException
 def update_dictionary(_dict: dict = None) -> dict:
     for _k in _dict.keys():
+
         # callable so value can be generated on-the-fly
         if callable(_dict[_k]['simval']):
             # random.uniform or random.randint which requires 2 argument(s)
@@ -101,6 +102,7 @@ def update_dictionary(_dict: dict = None) -> dict:
                     _dict[_k]['actval'] = f"{_value.encode('utf=8')}"
                 else: 
                     _dict[_k]['actval'] = f"{_value}"
+
             # random.choice which requires 1 argument(s)
             elif isinstance(_dict[_k]['datarange'], list):
                 _choice = _dict[_k]['datarange']
@@ -116,6 +118,7 @@ def update_dictionary(_dict: dict = None) -> dict:
                     _dict[_k]['actval'] = f"{_value.encode('utf=8')}"
                 else: 
                     _dict[_k]['actval'] = f"{_value}"
+
             # get_hash which requires 0 argument(s)
             elif isinstance(_dict[_k]['datarange'], str):
                 _choice = _dict[_k]['datarange']
@@ -123,9 +126,11 @@ def update_dictionary(_dict: dict = None) -> dict:
                     _dict[_k]['actval'] = f"{_dict[_k]['simval']()[:10]}{_choice}"
                 else:
                     _dict[_k]['actval'] = f"{_dict[_k]['simval']}"
+
         # not callable so just copy the value as a string
         elif isinstance(_dict[_k]['simval'], str):
             _dict[_k]['actval'] = _dict[_k]['simval']
+
     return _dict
 
 
@@ -4644,7 +4649,7 @@ PND_STATUS_GUI = {
  "CyberPower.UPSStatus.BattTime": CYBER_POWER["CyberPower.UPSStatus.BattTime"],
  "CyberPower.UPSStatus.OutputCurrent": CYBER_POWER["CyberPower.UPSStatus.OutputCurrent"],
  "CyberPower.UPSStatus.OutputVoltage": CYBER_POWER["CyberPower.UPSStatus.OutputVoltage"],
- "CyberPower.UPSStatus.OutputLoad": CYBER_POWER["CyberPower.UPSStatus.OutputLoad"]
+ "CyberPower.UPSStatus.OutputLoad": CYBER_POWER["CyberPower.UPSStatus.OutputLoad"],
 }
 
 
@@ -4653,10 +4658,11 @@ AMALI_STATUS_GUI = {
  "Time.Location.Latitude": TIME["Time.Location.Latitude"],
  "Time.Location.Longitude": TIME["Time.Location.Longitude"],
  "Time.Location.Elevation": TIME["Time.Location.Elevation"],
- "Time.Location.MagDecl": TIME["Time.Location.MagDecl"]
+ "Time.Location.MagDecl": TIME["Time.Location.MagDecl"],
 }
 
-NEW_STATUS_GUI = {}
+NEW_STATUS_GUI = {
+}
 
 
 # +

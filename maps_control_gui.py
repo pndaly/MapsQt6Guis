@@ -26,12 +26,12 @@ import sys
 # +
 # constant(s)
 # -
-__doc__ = """python3 maps_status_gui.py --help"""
+__doc__ = """python3 maps_control_gui.py --help"""
 AUTHOR = 'Phil Daly'
-DATE = 20240424
+DATE = 20240513
 EMAIL = 'pndaly@arizona.edu'
 MODULES = [_ for _ in list(TAB_DATA.keys())]
-NAME = 'MAPS Status GUI'
+NAME = 'MAPS Control GUI'
 VERSION = '1.0.0'
 
 
@@ -47,10 +47,11 @@ DEFAULT_TIMEOUT = 5
 
 
 # +
-# class: MapsStatusGui()
+# class: MapsControlGui()
 # -
-# noinspection PyArgumentList
-class MapsStatusGui(QMainWindow):
+# noinspection PyArgumentList,PyUnresolvedReferences
+class MapsControlGui(QMainWindow):
+
 
     # +
     # (hidden) method: __init__()
@@ -82,6 +83,9 @@ class MapsStatusGui(QMainWindow):
         self.__pi = None
         self.__simulate = True
         self.__step = 0
+        self.__lcds = {}
+        self.__slds = {}
+        self.__vals = {}
 
         # initialize (some) widget(s)
         self.__connected_icon = QLabel()
@@ -91,22 +95,31 @@ class MapsStatusGui(QMainWindow):
         self.__timer = QTimer()
         self.__tabs = QTabWidget()
 
-        # indi streams we wish to subscribe to
-        self.__indi_streams = list(set([f"{_.split('.')[0]}.{_.split('.')[1]}"
-                                        for _ in TAB_DATA.get(self.__module).keys()]))
-        self.__indi_nelms = len([_ for _ in TAB_DATA.get(self.__module).keys()])
-        # self.__indi_pages = int(round(self.__indi_nelms / self.__items))
+        # indi streams we wish to subscribe to but  we only want writable elements
+        _streams = [(_k, _v) for _k, _v in TAB_DATA.get(self.__module).items() if 'w' in _v['permission']]
+        self.__indi_streams = list(set([f"{_[0].split('.')[0]}.{_[0].split('.')[1]}" for _ in _streams]))
+        self.__indi_nelms = len(_streams)
         self.__indi_pages = int(math.ceil(self.__indi_nelms / self.__items))
-
         if self.__indi_pages == 0:
             self.__indi_pages += 1
+
+        if self.__log:
+            self.__log.info(f"_streams={_streams}")
+            self.__log.info(f"self.__indi_streams={self.__indi_streams}")
+            self.__log.info(f"self.__indi_nelms={self.__indi_nelms}")
+            self.__log.info(f"self.__indi_pages={self.__indi_pages}")
+
+        # if we have nothing, just return
+        if self.__indi_nelms == 0:
+            if self.__log:
+                self.__log.warning(f"No (writeable) controls selected")
+            return
 
         # create user interface
         self.create_user_interface()
 
         # if we are not in simulation mode, connect to the indiserver
         if not self.__simulate:
-            # noinspection PyUnresolvedReferences
             self.__pi = PyINDI2(verbose=False)
 
         self.__dump__('pars')
@@ -195,6 +208,18 @@ class MapsStatusGui(QMainWindow):
     def indi_streams(self) -> str:
         return f"{self.__indi_streams}"
 
+    @property
+    def lcds(self) -> dict:
+        return f"{self.__lcds}"
+
+    @property
+    def slds(self) -> dict:
+        return f"{self.__slds}"
+
+    @property
+    def vals(self) -> dict:
+        return f"{self.__vals}"
+
     # +
     # (hidden) method: __dump__()
     # -
@@ -220,7 +245,7 @@ class MapsStatusGui(QMainWindow):
     def __create_tooltip__(self):
         QToolTip.setFont(QFont('Ariel', 10))
         self.setToolTip(f"{NAME}: {AUTHOR} ({EMAIL})\tVersion: {VERSION}\tRevision Date: {DATE}")
-        self.setStyleSheet("""QToolTip { background-color: #E2FDDB; color: blue; border: solid 2px }""")
+        self.setStyleSheet("""QToolTip { background-color: #E2FDDB; color: blue; border: solid 2px } """)
 
     # +
     # (hidden) method: __create_menu__()
@@ -266,9 +291,9 @@ class MapsStatusGui(QMainWindow):
         self.__simmenu.addAction(self.__action_simulate)
 
     # +
-    # (hidden) method: __create_status_bar__()
+    # (hidden) method: __create_control_bar__()
     # -
-    def __create_status_bar__(self):
+    def __create_control_bar__(self):
         self.__statusbar.setStyleSheet("background-color: #E2FDDB;")
         self.__statusbar.setFont(QFont("Bitstream Charter", 12, italic=True))
         self.__statusbar.showMessage("")
@@ -290,22 +315,37 @@ class MapsStatusGui(QMainWindow):
 
                 # create a placeholder widget and insert into horizontal layout
                 w = QWidget()
-                w.setToolTip(f"{TAB_NAMES.get(self.__module)} Page {_p} [color={TAB_COLORS.get(self.__module)}])")
+                w.setToolTip(f"{TAB_NAMES.get(self.__module)} Page {_p} [color={TAB_COLORS.get(self.__module)}]")
                 h = QHBoxLayout(w)
 
-                # create left and right group(s)
-                right = QGroupBox('Value(s)')
+                # create left, right and middle group(s)
+                right = QGroupBox('Control(s)')
                 right.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
                 right.setFont(QFont("Bitstream Charter", 12, italic=True))
+
                 left = QGroupBox('Stream(s)')
                 left.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
                 left.setFont(QFont("Bitstream Charter", 12, italic=True))
 
-                # add left and right group(s) into horizontal layout and create grid(s)
+                middle = QGroupBox('Value(s)')
+                middle.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
+                middle.setFont(QFont("Bitstream Charter", 12, italic=True))
+
                 h.addWidget(left)
+                h.addWidget(middle)
                 h.addWidget(right)
+
+                # create right, middle and left grid(s)
                 rg = QGridLayout()
+                mg = QGridLayout()
                 lg = QGridLayout()
+
+                rg.setHorizontalSpacing(0)
+                rg.setVerticalSpacing(0)
+                mg.setHorizontalSpacing(0)
+                mg.setVerticalSpacing(0)
+                lg.setHorizontalSpacing(0)
+                lg.setVerticalSpacing(0)
 
                 # populate gui
                 _ic = 0
@@ -314,8 +354,9 @@ class MapsStatusGui(QMainWindow):
                     # if the key is empty, we use it for padding
                     if _k == '':
                         _ = QLabel()
-                        lg.addWidget(QLabel(), _ic, 0)
-                        rg.addWidget(QLabel(), _ic, 0)
+                        lg.addWidget(_, _ic, 0)
+                        mg.addWidget(_, _ic, 0)
+                        rg.addWidget(_, _ic, 0)
 
                     # populate grid(s)
                     else:
@@ -336,16 +377,136 @@ class MapsStatusGui(QMainWindow):
                                 _data[_k]['label'] = QLabel(f"{_k} [{_data[_k]['unit']}]")
                         _data[_k]['label'].setToolTip(f"{_data[_k]['tooltip']}")
 
-                        _data[_k]['widget'] = QLabel(f"{_data[_k]['actval']}")
-                        lg.addWidget(_data[_k]['label'], _ic, 0)
-                        rg.addWidget(_data[_k]['widget'], _ic, 0)
+                        self.__vals = {**self.__vals, **{_k: QLabel(f"{_data[_k]['actval']}")}}
+
+                        # float or int tuple
+                        _n1 = None
+                        if ('float' in _data[_k]['datatype'] or 'int' in _data[_k]['datatype']) and \
+                           (isinstance(_data[_k]['datarange'], tuple) and len(_data[_k]['datarange'])==2):
+                            
+                            _min, _max = _data[_k]['datarange']
+                            _tenpc = (_max - _min) / 10.0
+                            _half = _min + ((_max - _min) / 2.0)
+                            _data[_k]['widget'] = QSlider(Qt.Orientation.Horizontal, self)
+                            _data[_k]['widget'].setWindowTitle(_k)
+                            _data[_k]['widget'].setToolTip(f"{_k}")
+                            _data[_k]['widget'].setFocusPolicy(Qt.FocusPolicy.NoFocus)
+                            _data[_k]['widget'].setMinimum(int(round(_min - _tenpc)))
+                            _data[_k]['widget'].setMaximum(int(round(_max + _tenpc)))
+                            _data[_k]['widget'].setValue(int(round(_half)))
+                            _data[_k]['widget'].setSingleStep(int(round(_tenpc)))
+                            _data[_k]['widget'].setTickInterval(int(round(_tenpc)))
+                            _data[_k]['widget'].setTickPosition(QSlider.TickPosition.TicksBelow)
+                            _data[_k]['widget'].valueChanged.connect(self.slider_value_changed)
+                            _data[_k]['widget'].sliderReleased.connect(self.slider_button_released)
+                            # _data[_k]['widget'].setStyleSheet(f"background-color: #E2FDDB; color: #FFFFFF;")
+
+                            self.__lcds = {**self.__lcds, **{_k: QLCDNumber()}}
+                            self.__lcds[_k].display(int(round(_half)))
+                            self.__slds = {**self.__slds, **{_k: (_min, _max, _half, _tenpc)}}
+
+                            lg.addWidget(_data[_k]['label'], _ic, 0)
+                            mg.addWidget(self.__vals[_k], _ic, 0)
+                            rg.addWidget(_data[_k]['widget'], _ic, 0)
+                            if self.__lcds[_k] is not None:
+                                rg.addWidget(self.__lcds[_k], _ic, 1)
+
+                        # list
+                        elif (isinstance(_data[_k]['datarange'], list) and len(_data[_k]['datarange'])>0):
+
+                            _data[_k]['widget'] = QWidget()
+                            _data[_k]['widget'].setWindowTitle(_k)
+                            h = QHBoxLayout(_data[_k]['widget'])
+                            for _i, _j in enumerate(_data[_k]['datarange']):
+                                _btn = QRadioButton(f"{_j}")
+                                _btn.setWindowTitle(_k)
+                                _btn.setToolTip(f"{_k}")
+                                _btn.toggled.connect(self.radio_toggled)
+                                h.addWidget(_btn)
+
+                            lg.addWidget(_data[_k]['label'], _ic, 0)
+                            mg.addWidget(self.__vals[_k], _ic, 0)
+                            rg.addWidget(_data[_k]['widget'], _ic, 0)
+
+                        # str
+                        else:
+                            self.__lcds = {**self.__lcds, **{_k: None}}
+                            self.__slds = {**self.__slds, **{_k: (math.nan, math.nan, math.nan, math.nan)}}
+                            _data[_k]['widget'] = QLineEdit()
+                            _data[_k]['widget'].setWindowTitle(_k)
+                            _data[_k]['widget'].setToolTip(f"{_k}")
+                            _data[_k]['widget'].setStyleSheet("""QLineEdit { background-color: white; color: black } """)
+                            _data[_k]['widget'].returnPressed.connect(self.line_edit_clicked)
+
+                            lg.addWidget(_data[_k]['label'], _ic, 0)
+                            mg.addWidget(self.__vals[_k], _ic, 0)
+                            rg.addWidget(_data[_k]['widget'], _ic, 0)
 
                     # set layout into group(s) and add tab
                     right.setLayout(rg)
+                    middle.setLayout(mg)
                     left.setLayout(lg)
 
                     self.__tabs.addTab(w, tab_name)
                     _ic += 1
+
+    # +
+    # method: line_edit_clicked()
+    # -
+    def line_edit_clicked(self):
+        # TODO: send new value to INDI ... do we want a verification box first?
+        if self.__log:
+            self.__log.warning(f"{self.sender().windowTitle().strip()} lineedit value changed to {self.sender().text()}")
+
+    # +
+    # method: radio_toggled()
+    # -
+    def radio_toggled(self):
+        # TODO: send new value to INDI ... do we want a verification box first?
+        if self.__log:
+            self.__log.warning(f"{self.sender().windowTitle().strip()} radio value changed to {self.sender().text()}")
+
+    # +
+    # method: slider_value_changed()
+    # -
+    def slider_value_changed(self):
+        value = self.sender().value()
+        sender = self.sender()
+        title = self.sender().windowTitle().strip()
+        if self.__log:
+            self.__log.warning(f"{title} slider value changed to {value}")
+
+        w = None
+        if title in TAB_DATA[self.__module]:
+            w = TAB_DATA[self.__module].get('widget', sender)
+        else:
+            w = None
+
+        n = None
+        if title in self.__lcds:
+            n = self.__lcds.get(title, None)
+        if n is not None:
+            n.display(value)
+
+        _min, _max, _half, _tenpc = math.nan, math.nan, math.nan, math.nan
+        if title in self.__slds:
+            _min, _max, _half, _tenpc = self.__slds.get(title, (math.nan, math.nan, math.nan, math.nan))
+
+        if w is not None:
+            if value < _min:
+                w.setStyleSheet(f"background-color: #0000FF; color: #FFFFFF;")
+            elif value > _max:
+                w.setStyleSheet(f"background-color: #FF0000; color: #FFFFFF;")
+            else:
+                w.setStyleSheet(f"background-color: #E2FDDB; color: #0000FF;")
+
+    # +
+    # method: slider_button_released()
+    # -
+    def slider_button_released(self):
+        # TODO: send new value to INDI ... do we want a verification box first?
+        if self.__log:
+            self.__log.warning(f"{self.sender().windowTitle().strip()} slider value changed to {self.sender().value()}")
 
     # +
     # (hidden) method: __update_label__()
@@ -373,7 +534,7 @@ class MapsStatusGui(QMainWindow):
         # create widget(s)
         self.__create_tooltip__()
         self.__create_menu__()
-        self.__create_status_bar__()
+        self.__create_control_bar__()
         self.__create_tabbed__()
 
         self.__timer.timeout.connect(self.alarm)
@@ -482,8 +643,8 @@ class MapsStatusGui(QMainWindow):
             for _k, _v in TAB_DATA[self.__module].items():
                 _actval = _v['actval']
                 _type = _v['datatype'].strip().lower()
-                _widget = _v['widget']
-                _value = _v['widget'].text() if hasattr(_widget, 'text') else None
+                _widget = self.__vals[_k] if _k in self.__vals else None
+                _value = _widget.text() if hasattr(_widget, 'text') else None
                 if hasattr(_widget, 'setText'):
                     if 'float' in _type and float(_value) != float(_actval):
                         _widget.setText(f"{float(_actval)}")
@@ -512,8 +673,6 @@ class MapsStatusGui(QMainWindow):
                             _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
                     elif isinstance(_v['datarange'], list):
                         if _actval not in _v['datarange']:
-                            if self.__log:
-                                self.__log.warning(f"{_k} value not an option! {_actval} not in {_v['datarange']}")
                             _widget.setStyleSheet(f"background-color: #FFFF00; color: #00FF00;")
                         else:
                             _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
@@ -534,7 +693,7 @@ class MapsStatusGui(QMainWindow):
                 for _k, _v in _ret.items():
                     if _k in TAB_DATA[self.__module]:
                         _type = TAB_DATA[_k]['datatype']
-                        _widget = TAB_DATA[_k]['widget']
+                        _widget = self.__vals[_k]
                         if hasattr(_widget, 'setText'):
                             if 'float' in _type:
                                 TAB_DATA[_k]['actval'] = float(_v)
@@ -567,8 +726,6 @@ class MapsStatusGui(QMainWindow):
                             _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
                     elif isinstance(_v['datarange'], list):
                         if _actval not in _v['datarange']:
-                            if self.__log:
-                                self.__log.warning(f"{_k} value not an option! {_actval} not in {_v['datarange']}")
                             _widget.setStyleSheet(f"background-color: #FFFF00; color: #00FF00;")
                         else:
                             _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
@@ -591,6 +748,7 @@ class MapsStatusGui(QMainWindow):
         except:
             return _list, -1, -2
 
+
 # +
 # function: execute()
 # -
@@ -598,9 +756,10 @@ def execute(_host: str = DEFAULT_HOST, _port: int = DEFAULT_PORT,
             _items: int = DEFAULT_ITEMS, _delay: int = DEFAULT_DELAY,
             _module: str = DEFAULT_MODULE, _log: logging.Logger = None) -> None:
     app = QApplication([])
-    _ = MapsStatusGui(host=_host, port=_port, items=_items, delay=_delay, module=_module, log=_log)
-    _.show()
-    sys.exit(app.exec())
+    _ = MapsControlGui(host=_host, port=_port, items=_items, delay=_delay, module=_module, log=_log)
+    if _.indi_nelms != 0:
+        _.show()
+        sys.exit(app.exec())
 
 
 # +
@@ -609,7 +768,7 @@ def execute(_host: str = DEFAULT_HOST, _port: int = DEFAULT_PORT,
 if __name__ == '__main__':
 
     # get command line argument(s)
-    _p = argparse.ArgumentParser(description='maps status gui', formatter_class=argparse.RawTextHelpFormatter)
+    _p = argparse.ArgumentParser(description='maps control gui', formatter_class=argparse.RawTextHelpFormatter)
     _p.add_argument('--host', default=DEFAULT_HOST, help="""Host ['%(default)s']""")
     _p.add_argument('--port', default=DEFAULT_PORT, help="""Port [%(default)s]""")
     _p.add_argument('--module', default=DEFAULT_MODULE, help=f"""Module [%(default)s], choice of {MODULES}""")
@@ -621,6 +780,6 @@ if __name__ == '__main__':
     try:
         execute(_host=_a.host.strip(), _port=int(_a.port), _module=_a.module.strip(),
                 _items=int(_a.items), _delay=int(_a.delay),
-                _log=UtilLogger(name='maps_status_gui', level='DEBUG').logger)
+                _log=UtilLogger(name='maps_control_gui', level='DEBUG').logger)
     except Exception as _:
-        print(f"{_}\nUse: {__doc__}")
+       print(f"{_}\nUse: {__doc__}")
