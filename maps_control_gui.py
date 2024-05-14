@@ -451,47 +451,158 @@ class MapsControlGui(QMainWindow):
                     _ic += 1
 
     # +
-    # method: line_edit_clicked()
+    # method: line_edit_clicked() - SEND TO INDI!
     # -
     def line_edit_clicked(self):
-        # TODO: send new value to INDI ... do we want a verification box first?
-        if self.__log:
-            self.__log.warning(f"{self.sender().windowTitle().strip()} lineedit value changed to {self.sender().text()}")
+        try:
+            value = self.sender().text().strip()
+            title = self.sender().windowTitle().strip()
+            datatype = TAB_DATA[self.__module][title].get('datatype', '').strip()
+            if self.__log:
+                self.__log.debug(f"title='{title}', value='{value}', datatype='{datatype}'")
+
+            if 'float' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', float({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, float(value), timeout=DEFAULT_TIMEOUT)
+            elif 'int' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', int({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, int(value), timeout=DEFAULT_TIMEOUT)
+            elif 'bool' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', bool({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, bool(value), timeout=DEFAULT_TIMEOUT)
+            elif 'binary' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', f'{value.encode('utf-8')}', timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, f"{value.encode('utf-8')}", timeout=DEFAULT_TIMEOUT)
+            else:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', f'{value}', timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, f"{value}", timeout=DEFAULT_TIMEOUT)
+
+        except Exception as _:
+            if self.__log:
+                self.__log.error(f"failure in line_edit_clicked(), error='{_}'")
 
     # +
-    # method: radio_toggled()
+    # method: radio_toggled() - SEND TO INDI!
     # -
     def radio_toggled(self):
-        # TODO: send new value to INDI ... do we want a verification box first?
-        if self.__log:
-            self.__log.warning(f"{self.sender().windowTitle().strip()} radio value changed to {self.sender().text()}")
+        try:
+            value = self.sender().text()
+            title = self.sender().windowTitle().strip()
+            datatype = TAB_DATA[self.__module][title].get('datatype', '').strip()
+            if self.__log:
+                self.__log.debug(f"title='{title}', value='{value}', datatype='{datatype}'")
+
+            if 'float' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', float({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, float(value), timeout=DEFAULT_TIMEOUT)
+            elif 'int' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', int({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, int(value), timeout=DEFAULT_TIMEOUT)
+            elif 'bool' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', bool({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, bool(value), timeout=DEFAULT_TIMEOUT)
+            elif 'binary' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', f'{value.encode('utf-8')}', timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, f"{value.encode('utf-8')}", timeout=DEFAULT_TIMEOUT)
+            else:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', f'{value}', timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, f"{value}", timeout=DEFAULT_TIMEOUT)
+
+        except Exception as _:
+            if self.__log:
+                self.__log.error(f"failure in radio_toggled(), error='{_}'")
+
+    # +
+    # method: slider_button_released() - SEND TO INDI!
+    # -
+    def slider_button_released(self):
+        try:
+            value = self.sender().value()
+            title = self.sender().windowTitle().strip()
+            datatype = TAB_DATA[self.__module][title].get('datatype', '').strip()
+            if self.__log:
+                self.__log.debug(f"title='{title}', value='{value}', datatype='{datatype}'")
+
+            if 'float' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', float({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, float(value), timeout=DEFAULT_TIMEOUT)
+            elif 'int' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', int({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, int(value), timeout=DEFAULT_TIMEOUT)
+            elif 'bool' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', bool({value}), timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, bool(value), timeout=DEFAULT_TIMEOUT)
+            elif 'binary' in datatype:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', f'{value.encode('utf-8')}', timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, f"{value.encode('utf-8')}", timeout=DEFAULT_TIMEOUT)
+            else:
+                if self.__log:
+                    self.__log.info(f"calling setINDI('{title}', f'{value}', timeout=DEFAULT_TIMEOUT)")
+                if not self.__simulate and hasattr('setINDI', self.__pi):
+                    self.__pi.setINDI(title, f"{value}", timeout=DEFAULT_TIMEOUT)
+
+        except Exception as _:
+            if self.__log:
+                self.__log.error(f"failure in slider_button_released(), error='{_}'")
 
     # +
     # method: slider_value_changed()
     # -
     def slider_value_changed(self):
+
+        # initialize variable(s)
+        value, sender, title = None, '', ''
+        w, n = None, None
+        _min, _max, _half, _tenpc = math.nan, math.nan, math.nan, math.nan
+
+        # get value(s) from sender (caller)
         value = self.sender().value()
         sender = self.sender()
         title = self.sender().windowTitle().strip()
         if self.__log:
             self.__log.warning(f"{title} slider value changed to {value}")
 
-        w = None
-        if title in TAB_DATA[self.__module]:
-            w = TAB_DATA[self.__module].get('widget', sender)
-        else:
-            w = None
-
-        n = None
+        # get n if we know about it and update display
         if title in self.__lcds:
             n = self.__lcds.get(title, None)
         if n is not None:
             n.display(value)
 
-        _min, _max, _half, _tenpc = math.nan, math.nan, math.nan, math.nan
+        # get limits if we know about them
         if title in self.__slds:
             _min, _max, _half, _tenpc = self.__slds.get(title, (math.nan, math.nan, math.nan, math.nan))
 
+        # get w if we know about it and update gui
+        if title in TAB_DATA[self.__module]:
+            w = TAB_DATA[self.__module].get('widget', sender)
         if w is not None:
             if value < _min:
                 w.setStyleSheet(f"background-color: #0000FF; color: #FFFFFF;")
@@ -499,14 +610,6 @@ class MapsControlGui(QMainWindow):
                 w.setStyleSheet(f"background-color: #FF0000; color: #FFFFFF;")
             else:
                 w.setStyleSheet(f"background-color: #E2FDDB; color: #0000FF;")
-
-    # +
-    # method: slider_button_released()
-    # -
-    def slider_button_released(self):
-        # TODO: send new value to INDI ... do we want a verification box first?
-        if self.__log:
-            self.__log.warning(f"{self.sender().windowTitle().strip()} slider value changed to {self.sender().value()}")
 
     # +
     # (hidden) method: __update_label__()
