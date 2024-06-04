@@ -290,7 +290,7 @@ class UtilLogger(object):
 
         # define some variables and initialize them
         self.__msg = None
-        self.__logfile = f'/tmp/{self.__name}.log'
+        self.__logfile = f'/tmp/{self.__name}.log' if os.path.exists('/tmp') else f'{os.getcwd()}/{self.__name}.log'
 
         # logger dictionary
         sassy_logger_dictionary = {
