@@ -4,7 +4,6 @@
 # +
 # import(s)
 # -
-from colors import *
 from datetime import datetime
 from datetime import timedelta
 from typing import Any
@@ -1668,17 +1667,17 @@ AO_DM_ACTUATOR = {
     "unit": "",
     "widget": None, 
  },
- "ao_dm_actuator.SaveACFFile.act-spec": {
-    "actval": "1",
-    "datarange": [1, 2, 5, 6, 7, 8, 9, 10],
-    "datatype": "str", 
-    "label": None, 
-    "permission": "rw",
-    "simval": random.choice,
-    "tooltip": "Save Current ACF File: Opt Copy ACT Specifier: 1, 2, 5-10",
-    "unit": "",
-    "widget": None, 
- },
+#"ao_dm_actuator.SaveACFFile.act-spec": {
+#   "actval": "1",
+#   "datarange": [1, 2, 5, 6, 7, 8, 9, 10],
+#   "datatype": "str", 
+#   "label": None, 
+#   "permission": "rw",
+#   "simval": random.choice,
+#   "tooltip": "Save Current ACF File: Opt Copy ACT Specifier: 1, 2, 5-10",
+#   "unit": "",
+#   "widget": None, 
+#},
  "ao_dm_actuator.SaveACFFile.comment": {
     "actval": "",
     "datarange": "",
@@ -4754,7 +4753,6 @@ TCS = {
     "permission": "ro",
     "simval": random.uniform,
     "tooltip": "West Wind Direction",
-    "unit": "s",
     "unit": f"{DEGREE}EoN",
     "widget": None,
  },
@@ -4794,7 +4792,7 @@ else:
 # +
 # personal
 # -
-PND_STATUS_GUI = {
+PND_GUI = {
  "Time.Site.Name": TIME["Time.Site.Name"],
  "Time.Location.Latitude": TIME["Time.Location.Latitude"],
  "Time.Location.Longitude": TIME["Time.Location.Longitude"],
@@ -4838,7 +4836,7 @@ PND_STATUS_GUI = {
 }
 
 
-AMALI_STATUS_GUI = {
+AMALI_GUI = {
  "Time.Site.Name": TIME["Time.Site.Name"],
  "Time.Location.Latitude": TIME["Time.Location.Latitude"],
  "Time.Location.Longitude": TIME["Time.Location.Longitude"],
@@ -4846,30 +4844,13 @@ AMALI_STATUS_GUI = {
  "Time.Location.MagDecl": TIME["Time.Location.MagDecl"],
 }
 
-NEW_STATUS_GUI = {
+NEW_GUI = {
 }
 
 
 # +
 # TAB(s)
 # -
-TAB_COLORS = {
-    "all": CNAMES.get('antiquewhite'),
-    "ao_dm_actuator": "#E9DBFD",
-    "ao_dm_admin": "#FDF0DB",
-    "ao_dm_housekeeper": "#FDFDEC",
-    "ao_dm_operate": "#F2FDFA",
-    "ao_logger": "#E2FBFD",
-    "chai2": "#DBFDF5",
-    "CyberPower": "#DBEFFD",
-    "Time": "#DBEFED",
-    "Tcs": "#DBEFED",
-    "Phil": "#F2F888",
-    "Amali": "#E2F444",
-    "New": "#E9D111",
-}
-
-
 TAB_NAMES = {
     "all": "All", 
     "ao_dm_actuator": "AO DM Actuator", 
@@ -4898,7 +4879,7 @@ TAB_DATA = {
     "CyberPower": CYBER_POWER, 
     "Time": TIME,
     "Tcs": TCS,
-    "Phil": PND_STATUS_GUI,
-    "Amali": AMALI_STATUS_GUI,
-    "New": NEW_STATUS_GUI,
+    "Phil": PND_GUI,
+    "Amali": AMALI_GUI,
+    "New": NEW_GUI,
 }

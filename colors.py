@@ -15,7 +15,15 @@ import argparse
 # -
 __doc__ = """python3 colors --help"""
 DEFAULT_BG = '#000000'
-DEFAULT_FG = '#00FF00'
+DEFAULT_FG = '#FFFFFF'
+LIGHTGREEN = '#90EE90'
+PALEGREEN = '#E2FDDB'
+ALARMRED = '#AA0000'
+ALARMORANGE = '#FFA500'
+YELLOW = '#FFFF00'
+RED = '#FF0000'
+GREEN = '#00FF00'
+BLUE = '#0000BB'
 
 
 # +
@@ -163,6 +171,8 @@ CNAMES = {
     'yellow':               '#FFFF00',
     'yellowgreen':          '#9ACD32'
 }
+CNAMES_R = {_v: _k for _k, _v in CNAMES.items()}
+
 
 COLORS = [
     "#000000", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
@@ -192,17 +202,18 @@ COLORS = [
 # -
 # noinspection PyBroadException
 def color_palette(_bg: str = DEFAULT_BG, _fg: str = DEFAULT_FG) -> None:
+
     for _k, _v in CNAMES.items():
         try:
             print(f"{bg(_bg)}{fg(_fg)}{_k}/{_v}: {fg(_v)}Brown jars prevented the mixture from freezing too quickly")
         except:
             pass
-    for _i in COLORS:
+
+    for _c in COLORS:
         try:
-            print(f"{bg('#000000')}{_i}: {fg(_i)}The quick brown fox jumps over the lazy dog")
+            print(f"{bg(_bg)}{fg(_fg)}{_c}: {fg(_c)}The quick brown fox jumps over the lazy dog")
         except:
             pass
-
 
 
 # +
@@ -221,4 +232,3 @@ if __name__ == '__main__':
         color_palette(_bg=_a.bg.strip(), _fg=_a.fg.strip())
     except Exception as _:
         print(f"{_}\nUse: {__doc__}")
-

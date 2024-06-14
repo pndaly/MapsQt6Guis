@@ -4,23 +4,40 @@
 # +
 # import(s)
 # -
-from PyQt6.QtCore import *
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
 from colors import *
 from pnd import *
-from maps_status_indi import *
+from maps_indi import *
 
 # noinspection PyBroadException
 try:
+    # noinspection PyUnresolvedReferences
     from pyindi2 import *
 except:
     pass
 
 import argparse
+import os
 import platform
 import queue
 import sys
+
+QT_VERSION = int(os.getenv("QT_VERSION",  -1))
+if QT_VERSION == 5:
+    # noinspection PyPackageRequirements
+    from PyQt5.QtCore import *
+    # noinspection PyPackageRequirements
+    from PyQt5.QtWidgets import *
+    # noinspection PyPackageRequirements
+    from PyQt5.QtGui import *
+elif QT_VERSION == 6:
+    # noinspection PyPackageRequirements
+    from PyQt6.QtCore import *
+    # noinspection PyPackageRequirements
+    from PyQt6.QtWidgets import *
+    # noinspection PyPackageRequirements
+    from PyQt6.QtGui import *
+else:
+    pass
 
 
 # +
@@ -28,7 +45,7 @@ import sys
 # -
 __doc__ = """python3 maps_status_gui.py --help"""
 AUTHOR = 'Phil Daly'
-DATE = 20240424
+DATE = 20240612
 EMAIL = 'pndaly@arizona.edu'
 MODULES = [_ for _ in list(TAB_DATA.keys())]
 NAME = 'MAPS Status GUI'
@@ -41,7 +58,7 @@ VERSION = '1.0.0'
 DEFAULT_DELAY = 2000
 DEFAULT_HOST = 'localhost'
 DEFAULT_ITEMS = 25
-DEFAULT_MODULE = MODULES[-1]
+DEFAULT_MODULE = MODULES[0]
 DEFAULT_PORT = 7624
 DEFAULT_TIMEOUT = 5
 
@@ -49,7 +66,7 @@ DEFAULT_TIMEOUT = 5
 # +
 # class: MapsStatusGui()
 # -
-# noinspection PyArgumentList
+# noinspection PyArgumentList,PyShadowingNames,PyUnresolvedReferences
 class MapsStatusGui(QMainWindow):
 
     # +
@@ -57,6 +74,7 @@ class MapsStatusGui(QMainWindow):
     # -
     def __init__(self, host: str = DEFAULT_HOST, port: int = DEFAULT_PORT, 
                  items: int = DEFAULT_ITEMS, delay: int = DEFAULT_DELAY,
+                 fg: str = DEFAULT_FG, bg: str = DEFAULT_BG,
                  module: str = DEFAULT_MODULE, log: logging.Logger = None) -> None:
 
         # get argument(s)
@@ -64,6 +82,8 @@ class MapsStatusGui(QMainWindow):
         self.port = port
         self.items = items
         self.delay = delay
+        self.fg = fg
+        self.bg = bg
         self.module = module
         self.log = log
 
@@ -87,7 +107,6 @@ class MapsStatusGui(QMainWindow):
         self.__connected_icon = QLabel()
         self.__connected_label = QLabel()
         self.__menubar = QMenuBar()
-        self.__statusbar = QStatusBar()
         self.__timer = QTimer()
         self.__tabs = QTabWidget()
 
@@ -157,6 +176,24 @@ class MapsStatusGui(QMainWindow):
         self.__module = module if module in MODULES else DEFAULT_MODULE
 
     @property
+    def fg(self) -> str:
+        return f"{self.__fg}"
+
+    # noinspection PyShadowingNames
+    @fg.setter
+    def fg(self, fg: str = DEFAULT_FG) -> None:
+        self.__fg = fg if fg in CNAMES_R else DEFAULT_FG
+
+    @property
+    def bg(self) -> str:
+        return f"{self.__bg}"
+
+    # noinspection PyShadowingNames
+    @bg.setter
+    def bg(self, bg: str = DEFAULT_BG) -> None:
+        self.__bg = bg if bg in CNAMES_R else DEFAULT_BG
+
+    @property
     def log(self) -> str:
         return f"{self.__log}"
 
@@ -203,6 +240,7 @@ class MapsStatusGui(QMainWindow):
             if self.__log:
                 self.__log.debug(f"self='{self}', host='{self.__host}', port={self.__port}, "
                                  f"items={self.__items}, delay={self.__delay}, "
+                                 f"fg={self.__fg}, bg={self.__bg}, "
                                  f"module='{self.__module}', log={self.__log}")
         elif which.lower().strip() == "vars":
             if self.__log:
@@ -215,36 +253,24 @@ class MapsStatusGui(QMainWindow):
                                  f"self.__step={self.__step}")
 
     # +
-    # (hidden) method: __create_tooltip__()
-    # -
-    def __create_tooltip__(self):
-        QToolTip.setFont(QFont('Ariel', 10))
-        self.setToolTip(f"{NAME}: {AUTHOR} ({EMAIL})\tVersion: {VERSION}\tRevision Date: {DATE}")
-        self.setStyleSheet("""QToolTip { background-color: #E2FDDB; color: blue; border: solid 2px }""")
-
-    # +
     # (hidden) method: __create_menu__()
     # -
     def __create_menu__(self):
 
         self.__action_connect = QAction(QIcon('plug-connect.png'), '&Connect', self)
         self.__action_connect.setShortcut(QKeySequence('Alt+C'))
-        self.__action_connect.setStatusTip('Connect to IndiServer')
         self.__action_connect.triggered.connect(self.connect_to_indi)
 
         self.__action_disconnect = QAction(QIcon('plug-disconnect.png'), '&Disconnect', self)
         self.__action_disconnect.setShortcut('Alt+D')
-        self.__action_disconnect.setStatusTip('Disconnect from IndiServer')
         self.__action_disconnect.triggered.connect(self.disconnect_from_indi)
 
         self.__action_about = QAction(QIcon('information-frame.png'), '&About', self)
         self.__action_about.setShortcut('Alt+A')
-        self.__action_about.setStatusTip(f'About {NAME}')
         self.__action_about.triggered.connect(self.show_about)
 
         self.__action_quit = QAction(QIcon('cross-circle-frame.png'), '&Quit', self)
         self.__action_quit.setShortcut('Alt+Q')
-        self.__action_quit.setStatusTip('Exit application')
         self.__action_quit.triggered.connect(self.close)
 
         self.__filemenu = self.__menubar.addMenu('File')
@@ -257,22 +283,12 @@ class MapsStatusGui(QMainWindow):
 
         self.__action_simulate = QAction('&Simulate', self, checkable=True)
         self.__action_simulate.setShortcut('Alt+S')
-        self.__action_simulate.setStatusTip('Toggle simulation')
         self.__action_simulate.setChecked(True)
         self.__action_simulate.triggered.connect(self.set_simulate)
 
-        self.__menubar.setStyleSheet("""background-color: #AA0000; color: orange; border: solid 2px""")
+        self.__menubar.setStyleSheet(f"background-color: '{ALARMRED}'; color: '{ALARMORANGE}'; border: solid 2px;")
         self.__simmenu = self.__menubar.addMenu('Simulate')
         self.__simmenu.addAction(self.__action_simulate)
-
-    # +
-    # (hidden) method: __create_status_bar__()
-    # -
-    def __create_status_bar__(self):
-        self.__statusbar.setStyleSheet("background-color: #E2FDDB;")
-        self.__statusbar.setFont(QFont("Bitstream Charter", 12, italic=True))
-        self.__statusbar.showMessage("")
-        self.setStatusBar(self.__statusbar)
 
     # +
     # (hidden) method: __create_tabbed__()
@@ -285,20 +301,19 @@ class MapsStatusGui(QMainWindow):
             key_vals = [(_k, _v) for _k, _v in TAB_DATA[self.__module].items()]
             key_pages, self.__indi_pages, self.__items = self.split_keyvals(_list=key_vals, _pages=self.__indi_pages, _chunk=self.__items)
 
-            for _p in range(self.__indi_pages):
-                tab_name = f"{TAB_NAMES.get(self.__module)} {_p}"
+            for _ip in range(self.__indi_pages):
+                tab_name = f"{TAB_NAMES.get(self.__module)} {_ip}"
 
                 # create a placeholder widget and insert into horizontal layout
                 w = QWidget()
-                w.setToolTip(f"{TAB_NAMES.get(self.__module)} Page {_p} [color={TAB_COLORS.get(self.__module)}])")
                 h = QHBoxLayout(w)
 
                 # create left and right group(s)
                 right = QGroupBox('Value(s)')
-                right.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
+                right.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
                 right.setFont(QFont("Bitstream Charter", 12, italic=True))
                 left = QGroupBox('Stream(s)')
-                left.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};")
+                left.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
                 left.setFont(QFont("Bitstream Charter", 12, italic=True))
 
                 # add left and right group(s) into horizontal layout and create grid(s)
@@ -309,7 +324,7 @@ class MapsStatusGui(QMainWindow):
 
                 # populate gui
                 _ic = 0
-                for _k, _v in key_pages[_p]:
+                for _k, _v in key_pages[_ip]:
 
                     # if the key is empty, we use it for padding
                     if _k == '':
@@ -335,6 +350,8 @@ class MapsStatusGui(QMainWindow):
                             else:
                                 _data[_k]['label'] = QLabel(f"{_k} [{_data[_k]['unit']}]")
                         _data[_k]['label'].setToolTip(f"{_data[_k]['tooltip']}")
+                        # NB: reverse colors here so that they show up!
+                        _data[_k]['label'].setStyleSheet("""QToolTip { background-color: f'{self.__fg}'; color: f'{self.__bg}'; border: solid 2px;}""")
 
                         _data[_k]['widget'] = QLabel(f"{_data[_k]['actval']}")
                         lg.addWidget(_data[_k]['label'], _ic, 0)
@@ -356,12 +373,12 @@ class MapsStatusGui(QMainWindow):
         self.__connected_label.setText(f"{msg:75s}")
         if flag:
             self.__connected_icon.setPixmap(QPixmap('plug-connect.png'))
-            self.__connected_label.setStyleSheet("background-color: lightgreen;")
+            self.__connected_label.setStyleSheet(f"background-color: '{LIGHTGREEN}'; color: '{BLUE}';")
             self.__simulate = False
             self.__action_simulate.setChecked(False)
         else:
             self.__connected_icon.setPixmap(QPixmap('plug-disconnect.png'))
-            self.__connected_label.setStyleSheet("background-color: red;")
+            self.__connected_label.setStyleSheet(f"background-color: '{RED}'; color: '{YELLOW}';")
             self.__simulate = True
             self.__action_simulate.setChecked(True)
 
@@ -371,9 +388,7 @@ class MapsStatusGui(QMainWindow):
     def create_user_interface(self):
 
         # create widget(s)
-        self.__create_tooltip__()
         self.__create_menu__()
-        self.__create_status_bar__()
         self.__create_tabbed__()
 
         self.__timer.timeout.connect(self.alarm)
@@ -438,12 +453,10 @@ class MapsStatusGui(QMainWindow):
     # -
     def set_simulate(self, state):
         if state:
-            self.__action_simulate.setStatusTip('Simulation mode enabled')
-            self.__menubar.setStyleSheet("""background-color: #AA0000; color: orange; border: solid 2px""")
+            self.__menubar.setStyleSheet(f"background-color: '{ALARMRED}'; color: '{ALARMORANGE}'; border: solid 2px;")
             self.__simulate = True
         else:
-            self.__action_simulate.setStatusTip('Simulation mode disabled')
-            self.__menubar.setStyleSheet("""background-color: #E2FDDB; color: blue; border: solid 2px""")
+            self.__menubar.setStyleSheet(f"background-color: '{PALEGREEN}'; color: '{BLUE}'; border: solid 2px;")
             self.__simulate = False
 
     # +
@@ -456,8 +469,8 @@ class MapsStatusGui(QMainWindow):
         _mbox.setIcon(QMessageBox.Icon.Information)
         _mbox.setWindowTitle(f"{NAME}")
         _mbox.setWindowIcon(QIcon('information-frame.png'))
-        _mbox.setText(f"\n{NAME}\nAuthor: {AUTHOR}\nEmail: {EMAIL}\nVersion: {VERSION}\nRevision Date: {DATE}\n\nPython: {platform.python_version()}\nQt6: {qVersion()}")
-        _mbox.setStyleSheet("""background-color: #E2FDDB; color: blue; border: solid 2px""")
+        _mbox.setText(f"\n{NAME}\nAuthor: {AUTHOR}\nEmail: {EMAIL}\nVersion: {VERSION}\nRevision Date: {DATE}\n\nPython: {platform.python_version()}\nQt: {qVersion()}")
+        _mbox.setStyleSheet(f"background-color: '{PALEGREEN}'; color: '{BLUE}'; border: solid 2px;")
         _mbox.exec()
 
     # +
@@ -477,6 +490,7 @@ class MapsStatusGui(QMainWindow):
     # -
     def alarm(self):
         self.__step += 1
+        _actval, _type, _widget, _value = None, None, None, None
         if self.__simulate:
             TAB_DATA[self.__module] = update_dictionary(_dict=TAB_DATA[self.__module])
             for _k, _v in TAB_DATA[self.__module].items():
@@ -498,25 +512,30 @@ class MapsStatusGui(QMainWindow):
                     _min, _max = _v['datarange'] if len(_v['datarange']) == 2 else (-math.nan, math.nan)
 
                     # change label if running hot, cold, or normal
-                    if isinstance(_v['datarange'], tuple) and len(_v['datarange'])==2:
+                    if isinstance(_v['datarange'], tuple) and len(_v['datarange']) == 2:
                         _min, _max = _v['datarange']
+                        # cold
                         if float(_actval) < _min: 
                             if self.__log:
                                 self.__log.warning(f"{_k} value too cold! {_actval} < {_min}")
-                            _widget.setStyleSheet(f"background-color: #0000FF; color: #FFFFFF;")
+                            _widget.setStyleSheet(f"background-color: '{BLUE}'; color: '{YELLOW}';")
+                        # hot
                         elif float(_actval) > _max: 
                             if self.__log:
                                 self.__log.warning(f"{_k} value too hot! {_actval} > {_max}")
-                            _widget.setStyleSheet(f"background-color: #FF0000; color: #FFFFFF;")
+                            _widget.setStyleSheet(f"background-color: '{RED}'; color: '{YELLOW}';")
+                        # normal
                         else:
-                            _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
+                            _widget.setStyleSheet(f"background-color: {self.__bg}; color: '{self.__fg}';")
                     elif isinstance(_v['datarange'], list):
+                        # invalid
                         if _actval not in _v['datarange']:
                             if self.__log:
                                 self.__log.warning(f"{_k} value not an option! {_actval} not in {_v['datarange']}")
-                            _widget.setStyleSheet(f"background-color: #FFFF00; color: #00FF00;")
+                            _widget.setStyleSheet(f"background-color: '{YELLOW}'; color: '{BLUE}';")
+                        # normal
                         else:
-                            _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
+                            _widget.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
 
         else:
             try:
@@ -553,37 +572,46 @@ class MapsStatusGui(QMainWindow):
                                 _widget.setText(f"{_v}")
 
                     # change label if running hot, cold, or normal
-                    if isinstance(_v['datarange'], tuple) and len(_v['datarange'])==2:
+                    # _actval, _widget = None, None
+                    if isinstance(_v['datarange'], tuple) and len(_v['datarange']) == 2:
                         _min, _max = _v['datarange']
-                        if float(_actval) < _min: 
+                        # cold
+                        # noinspection PyTypeChecker
+                        if float(_actval) < _min:
                             if self.__log:
                                 self.__log.warning(f"{_k} value too cold! {_actval} < {_min}")
-                            _widget.setStyleSheet(f"background-color: #0000FF; color: #FFFFFF;")
+                            _widget.setStyleSheet(f"background-color: '{BLUE}'; color: '{YELLOW}';")
+                        # hot
                         elif float(_actval) > _max: 
                             if self.__log:
                                 self.__log.warning(f"{_k} value too hot! {_actval} > {_max}")
-                            _widget.setStyleSheet(f"background-color: #FF0000; color: #FFFFFF;")
+                            _widget.setStyleSheet(f"background-color: '{RED}'; color: '{YELLOW}';")
+                        # normal
                         else:
-                            _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
+                            _widget.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
                     elif isinstance(_v['datarange'], list):
+                        # invalid
                         if _actval not in _v['datarange']:
                             if self.__log:
                                 self.__log.warning(f"{_k} value not an option! {_actval} not in {_v['datarange']}")
-                            _widget.setStyleSheet(f"background-color: #FFFF00; color: #00FF00;")
+                            _widget.setStyleSheet(f"background-color: '{YELLOW}'; color: '{BLUE}';")
+                        # normal
                         else:
-                            _widget.setStyleSheet(f"background-color: {TAB_COLORS.get(self.__module)};; color: #000000;")
+                            _widget.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
 
     # +
     # function: split_list()
     # -
-    def split_keyvals(self, _list: list = None, _pages: int = 0, _chunk: int = DEFAULT_ITEMS) -> tuple:
+    # noinspection PyBroadException
+    @staticmethod
+    def split_keyvals(_list: list = None, _pages: int = 0, _chunk: int = DEFAULT_ITEMS) -> tuple:
         try:
             # adjust page(s)
             if _pages * _chunk < len(_list):
                 _pages += 1
             # pad to boundary
             _list += [('', {})] * ((_pages * _chunk) - len(_list))
-            # creae new list
+            # create new list
             _nlist = []
             for _i in range(0, len(_list), _chunk):
                 _nlist.append(_list[_i:_i+_chunk])
@@ -591,14 +619,16 @@ class MapsStatusGui(QMainWindow):
         except:
             return _list, -1, -2
 
+
 # +
 # function: execute()
 # -
 def execute(_host: str = DEFAULT_HOST, _port: int = DEFAULT_PORT,
             _items: int = DEFAULT_ITEMS, _delay: int = DEFAULT_DELAY,
+            _fg: str = DEFAULT_FG, _bg: str = DEFAULT_BG,
             _module: str = DEFAULT_MODULE, _log: logging.Logger = None) -> None:
     app = QApplication([])
-    _ = MapsStatusGui(host=_host, port=_port, items=_items, delay=_delay, module=_module, log=_log)
+    _ = MapsStatusGui(host=_host, port=_port, items=_items, delay=_delay, fg=_fg, bg=_bg, module=_module, log=_log)
     _.show()
     sys.exit(app.exec())
 
@@ -615,12 +645,14 @@ if __name__ == '__main__':
     _p.add_argument('--module', default=DEFAULT_MODULE, help=f"""Module [%(default)s], choice of {MODULES}""")
     _p.add_argument('--delay', default=DEFAULT_DELAY, help=f"""Delay Period (ms) [%(default)s]""")
     _p.add_argument('--items', default=DEFAULT_ITEMS, help=f"""Items / Tab [%(default)s]""")
+    _p.add_argument('--fg', default=DEFAULT_FG, help=f"""Foreground color [%(default)s]""")
+    _p.add_argument('--bg', default=DEFAULT_BG, help=f"""Background color  [%(default)s]""")
     _a = _p.parse_args()
 
     # noinspection PyBroadException
     try:
-        execute(_host=_a.host.strip(), _port=int(_a.port), _module=_a.module.strip(),
-                _items=int(_a.items), _delay=int(_a.delay),
+        execute(_host=_a.host.strip(), _port=int(_a.port), _items=int(_a.items), _delay=int(_a.delay), 
+                _fg=_a.fg.strip(), _bg=_a.bg.strip(),  _module=_a.module.strip(),
                 _log=UtilLogger(name='maps_status_gui', level='DEBUG').logger)
     except Exception as _:
         print(f"{_}\nUse: {__doc__}")
