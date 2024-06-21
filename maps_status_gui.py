@@ -37,7 +37,8 @@ elif QT_VERSION == 6:
     # noinspection PyPackageRequirements
     from PyQt6.QtGui import *
 else:
-    pass
+    color_print(msg='ERROR: Qt version not supported', color='red', height=2)
+    sys.exit(0)
 
 
 # +
@@ -476,7 +477,7 @@ class MapsStatusGui(QMainWindow):
     # +
     # (over-ride) method: closeEvent()
     # -
-    # noinspection PyPep8Naming
+    # noinspection PyPep8Naming,PyMethodOverriding
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "Quit Confirmation", "Are you sure you want to quit?", 
                                      QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
