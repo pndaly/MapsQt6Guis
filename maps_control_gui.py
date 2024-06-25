@@ -368,6 +368,8 @@ class MapsControlGui(QMainWindow):
                     # if the key is empty, we use it for padding
                     if _k == '':
                         _ = QLabel()
+                        _.setMinimumHeight(30)
+                        _.setMaximumHeight(30)
                         lg.addWidget(_, _ic, 0)
                         mg.addWidget(_, _ic, 0)
                         rg.addWidget(_, _ic, 0)
@@ -420,6 +422,13 @@ class MapsControlGui(QMainWindow):
                             self.__lcds[_k].setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
                             self.__slds = {**self.__slds, **{_k: (_min, _max, _half, _onepc)}}
 
+                            _data[_k]['label'].setMinimumHeight(30)
+                            _data[_k]['label'].setMaximumHeight(30)
+                            self.__vals[_k].setMinimumHeight(30)
+                            self.__vals[_k].setMaximumHeight(30)
+                            _data[_k]['widget'].setMinimumHeight(30)
+                            _data[_k]['widget'].setMaximumHeight(30)
+
                             lg.addWidget(_data[_k]['label'], _ic, 0)
                             mg.addWidget(self.__vals[_k], _ic, 0)
                             rg.addWidget(_data[_k]['widget'], _ic, 0)
@@ -439,6 +448,13 @@ class MapsControlGui(QMainWindow):
                                 _btn.toggled.connect(self.radio_toggled)
                                 h.addWidget(_btn)
 
+                            _data[_k]['label'].setMinimumHeight(30)
+                            _data[_k]['label'].setMaximumHeight(30)
+                            self.__vals[_k].setMinimumHeight(30)
+                            self.__vals[_k].setMaximumHeight(30)
+                            _data[_k]['widget'].setMinimumHeight(30)
+                            _data[_k]['widget'].setMaximumHeight(30)
+
                             lg.addWidget(_data[_k]['label'], _ic, 0)
                             mg.addWidget(self.__vals[_k], _ic, 0)
                             rg.addWidget(_data[_k]['widget'], _ic, 0)
@@ -453,6 +469,13 @@ class MapsControlGui(QMainWindow):
                             # _data[_k]['widget'].setStyleSheet("""QLineEdit { background-color: f'{self.__fg}'; color: f'{self.__bg}'; }""")  #  reverse video!
                             _data[_k]['widget'].setStyleSheet(f"background-color: f'{self.__fg}'; color: f'{self.__bg}';")  # reverse video!
                             _data[_k]['widget'].returnPressed.connect(self.line_edit_clicked)
+
+                            _data[_k]['label'].setMinimumHeight(30)
+                            _data[_k]['label'].setMaximumHeight(30)
+                            self.__vals[_k].setMinimumHeight(30)
+                            self.__vals[_k].setMaximumHeight(30)
+                            _data[_k]['widget'].setMinimumHeight(30)
+                            _data[_k]['widget'].setMaximumHeight(30)
 
                             lg.addWidget(_data[_k]['label'], _ic, 0)
                             mg.addWidget(self.__vals[_k], _ic, 0)
