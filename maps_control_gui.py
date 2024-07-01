@@ -467,7 +467,7 @@ class MapsControlGui(QMainWindow):
                             _data[_k]['widget'].setWindowTitle(_k)
                             _data[_k]['widget'].setToolTip(f"{_k}")
                             # _data[_k]['widget'].setStyleSheet("""QLineEdit { background-color: f'{self.__fg}'; color: f'{self.__bg}'; }""")  #  reverse video!
-                            _data[_k]['widget'].setStyleSheet(f"background-color: f'{self.__fg}'; color: f'{self.__bg}';")  # reverse video!
+                            _data[_k]['widget'].setStyleSheet(f"background-color: f'{self.__fg}'; color: f'{self.__bg}'; border-style: solid; border-width: 2px; border-color: self.__fg")  # reverse video!
                             _data[_k]['widget'].returnPressed.connect(self.line_edit_clicked)
 
                             _data[_k]['label'].setMinimumHeight(30)
