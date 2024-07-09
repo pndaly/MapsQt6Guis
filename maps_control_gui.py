@@ -11,7 +11,7 @@ from maps_indi import *
 # noinspection PyBroadException
 try:
     # noinspection PyUnresolvedReferences
-    from pyindi2 import *
+    from pyindi2.pyindi2 import *
 except:
     pass
 

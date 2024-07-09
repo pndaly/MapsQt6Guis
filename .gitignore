@@ -50,6 +50,7 @@ pyindi2.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
+pyindi2/
 *.py[cod]
 *$py.class
 
