@@ -23,18 +23,18 @@ import sys
 
 QT_VERSION = int(os.getenv("QT_VERSION",  -1))
 if QT_VERSION == 5:
-    # noinspection PyPackageRequirements
+    # noinspection PyPackageRequirements,PyUnresolvedReferences
     from PyQt5.QtCore import *
-    # noinspection PyPackageRequirements
+    # noinspection PyPackageRequirements,PyUnresolvedReferences
     from PyQt5.QtWidgets import *
-    # noinspection PyPackageRequirements
+    # noinspection PyPackageRequirements,PyUnresolvedReferences
     from PyQt5.QtGui import *
 elif QT_VERSION == 6:
-    # noinspection PyPackageRequirements
+    # noinspection PyPackageRequirements,PyUnresolvedReferences
     from PyQt6.QtCore import *
-    # noinspection PyPackageRequirements
+    # noinspection PyPackageRequirements,PyUnresolvedReferences
     from PyQt6.QtWidgets import *
-    # noinspection PyPackageRequirements
+    # noinspection PyPackageRequirements,PyUnresolvedReferences
     from PyQt6.QtGui import *
 else:
     color_print(msg='ERROR: Qt version not supported', color='red', height=2)
@@ -423,6 +423,7 @@ class MapsStatusGui(QMainWindow):
 
             # subscribe to streams
             self.__update_label__(True, f"connected to indi OK")
+            _dev, _nam = None, None
             try:
                 for _idx, _elem in enumerate(self.__indi_streams):
                     _dev, _nam = _elem.split('.')

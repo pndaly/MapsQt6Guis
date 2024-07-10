@@ -200,20 +200,19 @@ COLORS = [
 # +
 # function: color_palette()
 # -
-# noinspection PyBroadException
 def color_palette(_bg: str = DEFAULT_BG, _fg: str = DEFAULT_FG) -> None:
 
     for _k, _v in CNAMES.items():
         try:
             print(f"{bg(_bg)}{fg(_fg)}{_k}/{_v}: {fg(_v)}Brown jars prevented the mixture from freezing too quickly")
-        except:
-            pass
+        except Exception as _e1:
+            print(f"error='{_e1}'")
 
     for _c in COLORS:
         try:
             print(f"{bg(_bg)}{fg(_fg)}{_c}: {fg(_c)}The quick brown fox jumps over the lazy dog")
-        except:
-            pass
+        except Exception as _e2:
+            print(f"error='{_e2}'")
 
 
 # +

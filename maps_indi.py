@@ -1668,17 +1668,17 @@ AO_DM_ACTUATOR = {
     "unit": "",
     "widget": None, 
  },
-#"ao_dm_actuator.SaveACFFile.act-spec": {
-#   "actval": "1",
-#   "datarange": [1, 2, 5, 6, 7, 8, 9, 10],
-#   "datatype": "str", 
-#   "label": None, 
-#   "permission": "rw",
-#   "simval": random.choice,
-#   "tooltip": "Save Current ACF File: Opt Copy ACT Specifier: 1, 2, 5-10",
-#   "unit": "",
-#   "widget": None, 
-#},
+ # "ao_dm_actuator.SaveACFFile.act-spec": {
+ #    "actval": "1",
+ #    "datarange": [1, 2, 5, 6, 7, 8, 9, 10],
+ #    "datatype": "str",
+ #    "label": None,
+ #    "permission": "rw",
+ #    "simval": random.choice,
+ #    "tooltip": "Save Current ACF File: Opt Copy ACT Specifier: 1, 2, 5-10",
+ #    "unit": "",
+ #    "widget": None,
+ # },
  "ao_dm_actuator.SaveACFFile.comment": {
     "actval": "",
     "datarange": "",
@@ -4863,9 +4863,9 @@ TAB_NAMES = {
     "CyberPower": "Cyber Power", 
     "Time": "Time",
     "Tcs": "Tcs",
-    "Phil": "Phil's GUI",
-    "Amali": "Amali's GUI",
-    "New": "New GUI",
+    "Phil": "Phil's Shiny New GUI",
+    "Amali": "Amali's Basic GUI",
+    "New": "New Example GUI",
 }
 
 
