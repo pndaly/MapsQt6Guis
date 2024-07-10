@@ -701,12 +701,17 @@ class MapsControlGui(QMainWindow):
                 # noinspection PyUnresolvedReferences
                 self.__pi = PyINDI2(verbose=False)
         except Exception as _e0:
+            if self.__log:
+                self.__log.error(f"failed to connect to indi, error='{_e0}'")
             self.__update_label__(False, f"failed to connect to indi, error='{_e0}'")
             self.__pi = None
         else:
+            if self.__log:
+                self.__log.info(f"connected to indi OK")
 
             # subscribe to streams
             self.__update_label__(True, f"connected to indi OK")
+            _dev, _nam = None, None
             try:
                 for _idx, _elem in enumerate(self.__indi_streams):
                     _dev, _nam = _elem.split('.')
@@ -714,12 +719,14 @@ class MapsControlGui(QMainWindow):
                         self.__log.debug(f"subscribing to streams, device='{_dev}', name='{_nam}'")
                     self.__pi.sub(device=_dev, name=_nam)
             except Exception as _e1:
+                if self.__log:
+                    self.__log.error(f"failed subscribing to streams, device='{_dev}', name='{_nam}', error='{_e1}'")
                 self.__update_label__(False, f"failed to subscribe to streams, error='{_e1}'")
             else:
                 if self.__log:
-                    self.__log.debug(f"subscribed to {self.__pi.subs}")
+                    self.__log.debug(f"subscribed to {self.__pi.subs} OK")
                 self.__update_label__(True, "subscribed to streams OK")
-                # self.__timer.start(self.__delay)
+                self.__timer.start(self.__delay)
 
     # +
     # method: disconnect_from_indi()
@@ -735,7 +742,7 @@ class MapsControlGui(QMainWindow):
             self.__update_label__(False, f"Failed to disconnect from indi streams, error='{_}'")
         else:
             self.__update_label__(False, "Disconnected from INDI")
-            # self.__timer.stop()
+            self.__timer.stop()
 
     # +
     # method: set_simulate()
@@ -837,46 +844,56 @@ class MapsControlGui(QMainWindow):
             else:
                 if self.__log:
                     self.__log.debug(f"_ret={_ret}, type={type(_ret)}")
+                self.__log.debug(f"TAB_DATA[self.__module]={TAB_DATA[self.__module]}")
                 for _k, _v in _ret.items():
+                    if self.__log:
+                        self.__log.debug(f"_k='{_k}', _v={_v}")
+                    _actval = _v
                     if _k in TAB_DATA[self.__module]:
                         _type = TAB_DATA[_k]['datatype']
                         _widget = self.__vals[_k]
                         if hasattr(_widget, 'setText'):
                             if 'float' in _type:
-                                TAB_DATA[_k]['actval'] = float(_v)
+                                TAB_DATA[self.__module][_k]['actval'] = float(_v)
                                 _widget.setText(f"{float(_v)}")
                             elif 'int' in _type:
-                                TAB_DATA[_k]['actval'] = int(_v)
+                                TAB_DATA[self.__module][_k]['actval'] = int(_v)
                                 _widget.setText(f"{int(_v)}")
                             elif 'bool' in _type:
-                                TAB_DATA[_k]['actval'] = bool(_v)
+                                TAB_DATA[self.__module][_k]['actval'] = bool(_v)
                                 _widget.setText(f"{bool(_v)}")
                             elif 'binary' in _type:
-                                TAB_DATA[_k]['actval'] = f"{_v.encode('utf-8')}"
+                                TAB_DATA[self.__module][_k]['actval'] = f"{_v.encode('utf-8')}"
                                 _widget.setText(f"{_v.encode('utf-8')}")
                             else:
-                                TAB_DATA[_k]['actval'] = f"{_v}"
+                                TAB_DATA[self.__module][_k]['actval'] = f"{_v}"
                                 _widget.setText(f"{_v}")
 
-                    # change label if running hot, cold, or normal
-                    if isinstance(_v['datarange'], tuple) and len(_v['datarange']) == 2:
-                        _min, _max = _v['datarange']
-                        # noinspection PyTypeChecker
-                        if float(_actval) < _min:
-                            if self.__log:
-                                self.__log.warning(f"{_k} value too cold! {_actval} < {_min}")
-                            _widget.setStyleSheet(f"background-color: '{BLUE}'; color: '{YELLOW}';")
-                        elif float(_actval) > _max: 
-                            if self.__log:
-                                self.__log.warning(f"{_k} value too hot! {_actval} > {_max}")
-                            _widget.setStyleSheet(f"background-color: '{RED}'; color: '{YELLOW}';")
-                        else:
-                            _widget.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
-                    elif isinstance(_v['datarange'], list):
-                        if _actval not in _v['datarange']:
-                            _widget.setStyleSheet(f"background-color: '{YELLOW}'; color: '{BLUE}';")
-                        else:
-                            _widget.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
+                        # change label if running hot, cold, or normal
+                        # _actval, _widget = None, None
+                        if isinstance(TAB_DATA[self.__module][_k]['datarange'], tuple) and len(TAB_DATA[self.__module][_k]['datarange']) == 2:
+                            _min, _max = TAB_DATA[self.__module][_k]['datarange']
+                            # cold
+                            # noinspection PyTypeChecker
+                            if float(_actval) < _min:
+                                if self.__log:
+                                    self.__log.warning(f"{_k} value too cold! {_actval} < {_min}")
+                                _widget.setStyleSheet(f"background-color: '{BLUE}'; color: '{YELLOW}';")
+                            # hot
+                            elif float(_actval) > _max:
+                                if self.__log:
+                                    self.__log.warning(f"{_k} value too hot! {_actval} > {_max}")
+                                _widget.setStyleSheet(f"background-color: '{RED}'; color: '{YELLOW}';")
+                            # normal
+                            else:
+                                _widget.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
+                        elif isinstance(TAB_DATA[self.__module][_k]['datarange'], list):
+                            # invalid
+                            if _actval not in TAB_DATA[self.__module][_k]['datarange']:
+                                _widget.setStyleSheet(f"background-color: '{YELLOW}'; color: '{BLUE}';")
+                            # normal
+                            else:
+                                _widget.setStyleSheet(f"background-color: '{self.__bg}'; color: '{self.__fg}';")
 
     # +
     # function: split_list()
