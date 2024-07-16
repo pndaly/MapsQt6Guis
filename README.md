@@ -109,6 +109,6 @@ If you do change the `maps_indi.py` code, please check for data validity as deta
 
 -------------------------------------------------------------------------------
 
-Last Modified: 20240621
+Last Modified: 20240716
 
 Last Author:   Phil Daly (pndaly@arizona.edu)

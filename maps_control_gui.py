@@ -45,7 +45,7 @@ else:
 # -
 __doc__ = """python3 maps_control_gui.py --help"""
 AUTHOR = 'Phil Daly'
-DATE = 20240612
+DATE = 202406716
 EMAIL = 'pndaly@arizona.edu'
 MODULES = [_ for _ in list(TAB_DATA.keys())]
 NAME = 'MAPS Control GUI'
@@ -102,6 +102,7 @@ class MapsControlGui(QMainWindow):
         self.__pi = None
         self.__simulate = True
         self.__step = 0
+
         self.__lcds = {}
         self.__slds = {}
         self.__vals = {}
@@ -138,6 +139,7 @@ class MapsControlGui(QMainWindow):
 
         # if we are not in simulation mode, connect to the indiserver
         if not self.__simulate:
+            # noinspection PyUnresolvedReferences
             self.__pi = PyINDI2(verbose=False)
 
         self.__dump__('pars')
@@ -663,13 +665,15 @@ class MapsControlGui(QMainWindow):
         if flag:
             self.__connected_icon.setPixmap(QPixmap('plug-connect.png'))
             self.__connected_label.setStyleSheet(f"background-color: '{LIGHTGREEN}'; color: '{BLUE}';")
-            self.__simulate = False
             self.__action_simulate.setChecked(False)
+            self.__simulate = False
+            self.__menubar.setStyleSheet(f"background-color: '{PALEGREEN}'; color: '{BLUE}'; border: solid 2px;")
         else:
             self.__connected_icon.setPixmap(QPixmap('plug-disconnect.png'))
             self.__connected_label.setStyleSheet(f"background-color: '{RED}'; color: '{YELLOW}';")
-            self.__simulate = True
             self.__action_simulate.setChecked(True)
+            self.__simulate = True
+            self.__menubar.setStyleSheet(f"background-color: '{ALARMRED}'; color: '{ALARMORANGE}'; border: solid 2px;")
 
     # +
     # method: create_user_interface()
@@ -694,6 +698,13 @@ class MapsControlGui(QMainWindow):
     # -
     # noinspection PyBroadException
     def connect_to_indi(self):
+
+        # clear widget(s)
+        for _k, _v in TAB_DATA[self.__module].items():
+            _widget = _v['widget']
+            _value = _v['widget'].text() if hasattr(_widget, 'text') else None
+            if hasattr(_v['widget'], 'setText'):
+                _v['widget'].setText("")
 
         # connect to indi
         try:

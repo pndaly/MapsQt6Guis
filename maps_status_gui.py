@@ -46,7 +46,7 @@ else:
 # -
 __doc__ = """python3 maps_status_gui.py --help"""
 AUTHOR = 'Phil Daly'
-DATE = 20240612
+DATE = 20240716
 EMAIL = 'pndaly@arizona.edu'
 MODULES = [_ for _ in list(TAB_DATA.keys())]
 NAME = 'MAPS Status GUI'
@@ -115,11 +115,20 @@ class MapsStatusGui(QMainWindow):
         self.__indi_streams = list(set([f"{_.split('.')[0]}.{_.split('.')[1]}"
                                         for _ in TAB_DATA.get(self.__module).keys()]))
         self.__indi_nelms = len([_ for _ in TAB_DATA.get(self.__module).keys()])
-        # self.__indi_pages = int(round(self.__indi_nelms / self.__items))
         self.__indi_pages = int(math.ceil(self.__indi_nelms / self.__items))
-
         if self.__indi_pages == 0:
             self.__indi_pages += 1
+
+        if self.__log:
+            self.__log.info(f"self.__indi_streams={self.__indi_streams}")
+            self.__log.info(f"self.__indi_nelms={self.__indi_nelms}")
+            self.__log.info(f"self.__indi_pages={self.__indi_pages}")
+
+        # if we have nothing, just return
+        if self.__indi_nelms == 0:
+            if self.__log:
+                self.__log.warning(f"No controls selected")
+            return
 
         # create user interface
         self.create_user_interface()
@@ -371,17 +380,19 @@ class MapsStatusGui(QMainWindow):
     def __update_label__(self, flag: bool = False, msg: str = ''):
         self.__connected = flag
         self.__connected_label.clear()
-        self.__connected_label.setText(f"{msg:75s}")
+        self.__connected_label.setText(f"{msg:74s}")
         if flag:
             self.__connected_icon.setPixmap(QPixmap('plug-connect.png'))
             self.__connected_label.setStyleSheet(f"background-color: '{LIGHTGREEN}'; color: '{BLUE}';")
-            self.__simulate = False
             self.__action_simulate.setChecked(False)
+            self.__simulate = False
+            self.__menubar.setStyleSheet(f"background-color: '{PALEGREEN}'; color: '{BLUE}'; border: solid 2px;")
         else:
             self.__connected_icon.setPixmap(QPixmap('plug-disconnect.png'))
             self.__connected_label.setStyleSheet(f"background-color: '{RED}'; color: '{YELLOW}';")
-            self.__simulate = True
             self.__action_simulate.setChecked(True)
+            self.__simulate = True
+            self.__menubar.setStyleSheet(f"background-color: '{ALARMRED}'; color: '{ALARMORANGE}'; border: solid 2px;")
 
     # +
     # method: create_user_interface()
@@ -406,6 +417,13 @@ class MapsStatusGui(QMainWindow):
     # -
     # noinspection PyBroadException
     def connect_to_indi(self):
+
+        # clear widget(s)
+        for _k, _v in TAB_DATA[self.__module].items():
+            _widget = _v['widget']
+            _value = _v['widget'].text() if hasattr(_widget, 'text') else None
+            if hasattr(_v['widget'], 'setText'):
+                _v['widget'].setText("")
 
         # connect to indi
         try:
@@ -507,9 +525,9 @@ class MapsStatusGui(QMainWindow):
                 _widget = _v['widget']
                 _value = _v['widget'].text() if hasattr(_widget, 'text') else None
                 if hasattr(_widget, 'setText'):
-                    if 'float' in _type and float(_value) != float(_actval):
+                    if 'float' in _type and _value != '' and float(_value) != float(_actval):
                         _widget.setText(f"{float(_actval)}")
-                    elif 'int' in _type and int(_value) != int(_actval):
+                    elif 'int' in _type and _value != '' and int(_value) != int(_actval):
                         _widget.setText(f"{int(_actval)}")
                     elif 'bool' in _type:
                         _widget.setText(f"{bool(_actval)}")
